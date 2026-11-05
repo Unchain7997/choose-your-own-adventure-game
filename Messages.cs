@@ -16,6 +16,9 @@ public class Messages
         _dictionary = new Dictionary<string, string>();
         _raceMap = new Dictionary<string, string>();
         _occupationMap = new Dictionary<string, string>();
+        _displayRaceMap = new Dictionary<string, string>();
+        _displayOccupationMap = new Dictionary<string, string>();
+        _displayWeaponMap = new Dictionary<string, string>();
     }
 
     public void SetCurrentLanguage(string language)
