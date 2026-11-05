@@ -13,11 +13,10 @@ public class Game
         Dragon dragon = new Dragon(die);
 
         // Language selection shown before Messages dictionary is loaded
-        Console.WriteLine("Select language / Selecciona idioma / Choisissez la langue:");
-        Console.WriteLine("1. English  2. Espanol  3. Francais");
+        Console.WriteLine("Select language / Selecciona idioma / Choisissez la langue / Seleziona la lingua:");
+        Console.WriteLine("1. English  2. Espanol  3. Francais  4. Italiano");
         Console.Write("Enter choice: ");
-        string? langInput = Console.ReadLine()?.Trim();
-        string selectedLanguage = langInput switch { "2" => "Spanish", "3" => "French", _ => "English" };
+        string selectedLanguage = GetLanguageFromChoice(Console.ReadLine());
 
         // Initialize Messages with selected language (per sequence diagram)
 
@@ -86,6 +85,17 @@ public class Game
             Console.WriteLine(messages.GetMessage("victory"));
         else
             Console.WriteLine(messages.GetMessage("defeat"));
+    }
+
+    public string GetLanguageFromChoice(string? input)
+    {
+        return input?.Trim() switch
+        {
+            "2" => "Spanish",
+            "3" => "French",
+            "4" => "Italian",
+            _ => "English"
+        };
     }
 
     public bool IsValidMenuChoice(string? input)

@@ -379,4 +379,65 @@ public class GameTests
         Game game = new Game();
         Assert.IsTrue(game.IsValidCombatChoice("  a  "));
     }
+
+    // --- EndGame: Italian ---
+
+    [TestMethod]
+    public void EndGame_DoesNotThrow_WhenPlayerWinsInItalian()
+    {
+        Game game = new Game();
+        game.EndGame(true, false, GetMessages("Italian"));
+    }
+
+    [TestMethod]
+    public void EndGame_DoesNotThrow_WhenPlayerLosesInItalian()
+    {
+        Game game = new Game();
+        game.EndGame(false, false, GetMessages("Italian"));
+    }
+
+    [TestMethod]
+    public void EndGame_DoesNotThrow_WhenPlayerRetreatsInItalian()
+    {
+        Game game = new Game();
+        game.EndGame(false, true, GetMessages("Italian"));
+    }
+
+    // --- GetLanguageFromChoice ---
+
+    [TestMethod]
+    public void GetLanguageFromChoice_ReturnsItalian_ForFour()
+    {
+        Game game = new Game();
+        Assert.AreEqual("Italian", game.GetLanguageFromChoice("4"));
+    }
+
+    [TestMethod]
+    public void GetLanguageFromChoice_ReturnsItalian_ForPaddedFour()
+    {
+        Game game = new Game();
+        Assert.AreEqual("Italian", game.GetLanguageFromChoice("  4  "));
+    }
+
+    [TestMethod]
+    [DataRow("1", "English")]
+    [DataRow("2", "Spanish")]
+    [DataRow("3", "French")]
+    public void GetLanguageFromChoice_PreservesExistingLanguages(string input, string expected)
+    {
+        Game game = new Game();
+        Assert.AreEqual(expected, game.GetLanguageFromChoice(input));
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("   ")]
+    [DataRow("5")]
+    [DataRow("Italian")]
+    public void GetLanguageFromChoice_DefaultsToEnglish_ForInvalidInput(string? input)
+    {
+        Game game = new Game();
+        Assert.AreEqual("English", game.GetLanguageFromChoice(input));
+    }
 }
