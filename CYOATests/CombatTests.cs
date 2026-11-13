@@ -148,4 +148,20 @@ public class CombatTests
         StringAssert.Contains(result, messages.GetMessage("stats_weapon"));
         StringAssert.Contains(result, messages.GetMessage("stats_damage"));
     }
+
+    [TestMethod]
+    public void GetCombatStatsDisplay_DoesNotShowGold()
+    {
+        Player player = CreateTestPlayer();
+        player.Gold = 13;
+        Dragon dragon = CreateTestDragon();
+        Messages messages = CreateEnglishMessages();
+
+        Combat combat = new Combat(player, dragon, messages);
+
+        string result = combat.GetCombatStatsDisplay();
+
+        Assert.IsFalse(result.Contains(messages.GetMessage("stats_gold")),
+            "Combat stats display should not contain the Gold label.");
+    }
 }

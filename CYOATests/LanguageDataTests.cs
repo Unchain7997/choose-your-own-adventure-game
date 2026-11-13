@@ -50,10 +50,10 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll69DictionaryKeys(string language)
+    public void Language_HasAll71DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(69, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(71, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
     }
 
     [TestMethod]
