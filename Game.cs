@@ -40,6 +40,7 @@ public class Game
             {
                 Player player = new Player();
                 player.CreateCharacter(messages);
+                Merchant merchant = new Merchant();
 
                 bool inAdventureMenu = true;
                 while (inAdventureMenu)
@@ -54,7 +55,7 @@ public class Game
                     }
                     else if (selectedPath == "south")
                     {
-                        Console.WriteLine(messages.GetMessage("south_path_narrative"));
+                        HandleMerchantEncounter(player, merchant, messages);
                     }
                     else if (selectedPath == "north")
                     {
@@ -141,6 +142,45 @@ public class Game
 
             Console.WriteLine(messages.GetMessage("path_invalid"));
         }
+    }
+
+    public void HandleMerchantEncounter(Player player, Merchant merchant, Messages messages)
+    {
+        Console.WriteLine(messages.GetMessage("south_path_narrative"));
+        Console.WriteLine(string.Format(messages.GetMessage("merchant_greeting"), merchant.Name));
+        Console.WriteLine(string.Format(messages.GetMessage("merchant_gold_display"), player.Gold));
+
+        while (true)
+        {
+            DisplayMerchantMenu(merchant, messages);
+            Console.Write(messages.GetMessage("enter_choice"));
+            string? input = Console.ReadLine()?.Trim();
+
+            // End of input (null) also leaves, so the loop can never spin forever.
+            if (input == merchant.LeaveOption.ToString() || input == null)
+                break;
+
+            // Item choices are treated as invalid until purchases exist (Ticket 03).
+            Console.WriteLine(messages.GetMessage("invalid"));
+        }
+
+        Console.WriteLine(string.Format(messages.GetMessage("merchant_farewell"), merchant.Name));
+    }
+
+    // Menu numbers are generated here; the translated texts never carry them.
+    private void DisplayMerchantMenu(Merchant merchant, Messages messages)
+    {
+        for (int number = 1; number <= merchant.ItemCount; number++)
+        {
+            string itemKey = merchant.GetItemKey(number);
+            Console.WriteLine($"{number}. " + string.Format(
+                messages.GetMessage("merchant_menu_line"),
+                messages.GetMessage("item_" + itemKey),
+                string.Format(messages.GetMessage("effect_" + itemKey), merchant.GetBonus(number)),
+                merchant.GetPrice(number)));
+        }
+
+        Console.WriteLine($"{merchant.LeaveOption}. " + messages.GetMessage("merchant_leave"));
     }
 
     private void HandleDragonEncounter(Player player, Dragon dragon, Messages messages)

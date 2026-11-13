@@ -50,10 +50,87 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll71DictionaryKeys(string language)
+    public void Language_HasAll82DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(71, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(82, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+    }
+
+    private static readonly string[] MerchantKeys =
+    {
+        "merchant_greeting", "merchant_gold_display",
+        "item_healing_potion", "item_strength_tonic", "item_agility_elixir",
+        "effect_healing_potion", "effect_strength_tonic", "effect_agility_elixir",
+        "merchant_menu_line", "merchant_leave", "merchant_farewell"
+    };
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_HasMerchantEncounterKeys(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        HashSet<string> keys = KeysOf(LoadSection(doc, language).GetProperty("dictionary"));
+
+        foreach (string key in MerchantKeys)
+            Assert.IsTrue(keys.Contains(key), $"{language} is missing dictionary key '{key}'.");
+    }
+
+    // Menu numbers are generated in code, so no menu text may carry its own number.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_MerchantMenuText_HasNoTypedMenuNumber(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+
+        foreach (string key in new[] { "merchant_leave", "merchant_menu_line" })
+            StringAssert.DoesNotMatch(dictionary.GetProperty(key).GetString()!, new Regex(@"^\s*\d"),
+                $"{language} '{key}' starts with a typed menu number.");
+    }
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_SouthPathNarrative_IsRewrittenWithoutNamingTheMerchant(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+
+        Assert.IsTrue(dictionary.TryGetProperty("south_path_narrative", out JsonElement narrative),
+            $"{language} is missing 'south_path_narrative'.");
+        string text = narrative.GetString()!;
+
+        Assert.AreEqual("", Placeholders(text), $"{language} south_path_narrative must have no placeholders.");
+        StringAssert.DoesNotMatch(text, new Regex("Brannoc"), $"{language} south_path_narrative names the Merchant.");
+        StringAssert.DoesNotMatch(text, new Regex("nothing adventurous|no pasa nada aventurero|rien d'aventureux|non accade nulla"),
+            $"{language} south_path_narrative still has the old 'nothing happens' text.");
+    }
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_MerchantName_ComesFromPlaceholder_NeverTypedIntoText(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+
+        foreach (JsonProperty entry in dictionary.EnumerateObject())
+            StringAssert.DoesNotMatch(entry.Value.GetString()!, new Regex("Brannoc"),
+                $"{language} key '{entry.Name}' types the Merchant's name instead of using {{0}}.");
+
+        foreach (string key in new[] { "merchant_greeting", "merchant_farewell" })
+            Assert.AreEqual("{0}", Placeholders(dictionary.GetProperty(key).GetString()!),
+                $"{language} '{key}' must take the Merchant's name as {{0}}.");
     }
 
     [TestMethod]
