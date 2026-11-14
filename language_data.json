@@ -90,7 +90,8 @@
       "merchant_sold_mark": "[Sold]",
       "merchant_already_sold": "You have already bought the {0}. Choose something else.",
       "merchant_not_enough_gold": "You need {0} Gold but have only {1}.",
-      "merchant_nothing_affordable": "There is nothing left on the wagon that your Gold can buy."
+      "merchant_nothing_affordable": "There is nothing left on the wagon that your Gold can buy.",
+      "merchant_moved_on": "The crossroads to the South is empty. {0} has packed up his wagon and moved on."
     },
     "raceMap": {
       "human": "Human",
@@ -215,7 +216,8 @@
       "merchant_sold_mark": "[Vendido]",
       "merchant_already_sold": "Ya compraste esto: {0}. Elige otra cosa.",
       "merchant_not_enough_gold": "Necesitas {0} de Oro, pero solo tienes {1}.",
-      "merchant_nothing_affordable": "No queda nada en la carreta que puedas comprar con tu Oro."
+      "merchant_nothing_affordable": "No queda nada en la carreta que puedas comprar con tu Oro.",
+      "merchant_moved_on": "El cruce del sur esta vacio. {0} ha recogido su carreta y se ha marchado."
     },
     "raceMap": {
       "humano": "Human",
@@ -340,7 +342,8 @@
       "merchant_sold_mark": "[Vendu]",
       "merchant_already_sold": "Vous avez deja achete cet objet : {0}. Choisissez autre chose.",
       "merchant_not_enough_gold": "Il vous faut {0} Or, mais vous n'en avez que {1}.",
-      "merchant_nothing_affordable": "Il ne reste rien sur la charrette que votre Or puisse acheter."
+      "merchant_nothing_affordable": "Il ne reste rien sur la charrette que votre Or puisse acheter.",
+      "merchant_moved_on": "Le carrefour du sud est desert. {0} a remballe sa charrette et est reparti."
     },
     "raceMap": {
       "humain": "Human",
@@ -465,7 +468,8 @@
       "merchant_sold_mark": "[Venduto]",
       "merchant_already_sold": "Hai già comprato questo oggetto: {0}. Scegli qualcos'altro.",
       "merchant_not_enough_gold": "Ti servono {0} Oro, ma ne hai solo {1}.",
-      "merchant_nothing_affordable": "Non c'è più nulla sul carretto che tu possa comprare con il tuo oro."
+      "merchant_nothing_affordable": "Non c'è più nulla sul carretto che tu possa comprare con il tuo oro.",
+      "merchant_moved_on": "Il bivio a sud è deserto. {0} ha caricato il suo carretto e se n'è andato."
     },
     "raceMap": {
       "umano": "Human",

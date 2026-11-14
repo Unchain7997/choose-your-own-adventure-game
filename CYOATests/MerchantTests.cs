@@ -54,6 +54,24 @@ public class MerchantTests
         Assert.ThrowsException<ArgumentOutOfRangeException>(() => Merchant.GetStatValue(player, (PlayerStat)99));
     }
 
+    // AC4, R13: the once-per-adventure state starts fresh on each new Merchant.
+    [TestMethod]
+    public void NewMerchant_HasNotBeenMet()
+    {
+        Assert.IsFalse(new Merchant().HasBeenMet);
+    }
+
+    [TestMethod]
+    public void MarkMet_StaysMet()
+    {
+        Merchant merchant = new Merchant();
+
+        merchant.MarkMet();
+        merchant.MarkMet();
+
+        Assert.IsTrue(merchant.HasBeenMet);
+    }
+
     [TestMethod]
     public void Catalogue_HasThreeItems_AndLeaveIsOptionFour()
     {
@@ -742,5 +760,82 @@ public class MerchantEncounterTests
         Assert.AreEqual(0, player.Gold);
         Assert.AreEqual(21, player.HealthPoints);
         Assert.AreEqual(16, player.Strength);
+    }
+
+    // R2, AC4: every visit after the first prints only the "moved on" line, whatever happened on the first.
+    private static void AssertSecondVisitShowsOnlyMovedOn(Player player, Merchant merchant, Messages messages)
+    {
+        int gold = player.Gold, health = player.HealthPoints, strength = player.Strength, agility = player.Agility;
+
+        // Scripted purchases are offered too, to prove no menu reads them.
+        string output = RunEncounter("1\n2\n3\n4\n", player, merchant, messages);
+
+        Assert.AreEqual(string.Format(messages.GetMessage("merchant_moved_on"), merchant.Name) + Environment.NewLine, output);
+        Assert.AreEqual(gold, player.Gold, "Gold");
+        Assert.AreEqual(health, player.HealthPoints, "HealthPoints");
+        Assert.AreEqual(strength, player.Strength, "Strength");
+        Assert.AreEqual(agility, player.Agility, "Agility");
+    }
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void SecondVisit_AfterLeavingWithoutBuying_ShowsOnlyMovedOn(string language)
+    {
+        Messages messages = GetMessages(language);
+        Merchant merchant = new Merchant();
+        Player player = NewPlayer(gold: 20);
+        RunEncounter("4\n", player, merchant, messages);
+
+        AssertSecondVisitShowsOnlyMovedOn(player, merchant, messages);
+        StringAssert.Contains(string.Format(messages.GetMessage("merchant_moved_on"), merchant.Name), "Old Brannoc");
+    }
+
+    [TestMethod]
+    public void SecondVisit_AfterStartingBelowFiveGold_ShowsOnlyMovedOn()
+    {
+        Messages messages = GetMessages();
+        Merchant merchant = new Merchant();
+        Player player = NewPlayer(gold: 4);
+        RunEncounter("", player, merchant, messages);
+
+        player.Gold = 20; // Even with Gold to spend now, he has gone.
+        AssertSecondVisitShowsOnlyMovedOn(player, merchant, messages);
+    }
+
+    // R13: StartGame creates a new Merchant with each new Player, so a new adventure meets Old Brannoc again.
+    [TestMethod]
+    public void NewAdventure_FreshMerchant_ShowsFullEncounterAgain()
+    {
+        Messages messages = GetMessages();
+        Merchant firstAdventure = new Merchant();
+        RunEncounter("4\n", NewPlayer(gold: 20), firstAdventure, messages);
+        Assert.IsTrue(firstAdventure.HasBeenMet);
+
+        Merchant secondAdventure = new Merchant();
+        string output = RunEncounter("4\n", NewPlayer(gold: 20), secondAdventure, messages);
+
+        AssertInOrder(output,
+            messages.GetMessage("south_path_narrative"),
+            string.Format(messages.GetMessage("merchant_greeting"), secondAdventure.Name),
+            "1. Healing Potion (+6 Health) - 5 Gold",
+            string.Format(messages.GetMessage("merchant_farewell"), secondAdventure.Name));
+        Assert.IsFalse(output.Contains(string.Format(messages.GetMessage("merchant_moved_on"), secondAdventure.Name)));
+    }
+
+    [TestMethod]
+    public void SecondVisit_AfterShopping_ShowsOnlyMovedOn_AndKeepsRaisedStats()
+    {
+        Messages messages = GetMessages();
+        Merchant merchant = new Merchant();
+        Player player = NewPlayer(gold: 13);
+        RunEncounter("2\n4\n", player, merchant, messages);
+        Assert.AreEqual(16, player.Strength);
+
+        AssertSecondVisitShowsOnlyMovedOn(player, merchant, messages);
+        Assert.AreEqual(16, player.Strength);
+        Assert.AreEqual(5, player.Gold);
     }
 }

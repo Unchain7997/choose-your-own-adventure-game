@@ -146,6 +146,15 @@ public class Game
 
     public void HandleMerchantEncounter(Player player, Merchant merchant, Messages messages)
     {
+        // R2, AC4: once per adventure. Marked before anything else, so an automatic end at once still counts.
+        if (merchant.HasBeenMet)
+        {
+            Console.WriteLine(string.Format(messages.GetMessage("merchant_moved_on"), merchant.Name));
+            return;
+        }
+
+        merchant.MarkMet();
+
         Console.WriteLine(messages.GetMessage("south_path_narrative"));
         Console.WriteLine(string.Format(messages.GetMessage("merchant_greeting"), merchant.Name));
         Console.WriteLine(string.Format(messages.GetMessage("merchant_gold_display"), player.Gold));

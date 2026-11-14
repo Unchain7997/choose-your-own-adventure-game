@@ -23,6 +23,11 @@ public class Merchant
 
     public string Name { get; } = "Old Brannoc";
 
+    // Once per adventure (R2, AC4): set on the first South visit, even if the encounter ends automatically at once.
+    public bool HasBeenMet { get; private set; }
+
+    public void MarkMet() => HasBeenMet = true;
+
     public int ItemCount => Catalogue.Length;
 
     // Leave is always the option after the last Item.

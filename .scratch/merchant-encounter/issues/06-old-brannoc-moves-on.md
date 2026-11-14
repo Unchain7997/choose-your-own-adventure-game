@@ -4,17 +4,17 @@
 
 **Blocked by:** 05 (End the encounter automatically)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Spec: `.scratch/merchant-encounter/spec.md` (R2, R13 once-per-adventure, AC4, AC9; seams 1 and 2)
 
-- [ ] Merchant tests: a new Merchant hasn't been met; once marked met, it stays met.
-- [ ] Encounter tests: the second call to the encounter method with the same Merchant prints the "moved on" message and nothing else from the encounter (no narrative, greeting, Gold line or menu), and changes no Player stat.
-- [ ] Encounter tests: a player who starts below 5 Gold (automatic end at once) still gets "moved on" on the second visit (AC4).
-- [ ] Encounter tests: a player who chose Leave without buying anything still gets "moved on" on the second visit.
-- [ ] The "moved on" message takes the Merchant's name as a `{0}` placeholder and exists in all four languages.
-- [ ] The dictionary key-count test is updated to the new total.
-- [ ] Console-based tests save and restore `Console.In` and `Console.Out`.
-- [ ] `dotnet test`: all existing tests plus the new tests pass, 0 failing (AC9, AC10).
-- [ ] ADR 0001 unchanged (`git diff 51c1941 -- docs/0001-add-italian-language-support.md` prints nothing).
-- [ ] The North path, Exit, the main menu, combat rules and the combat stats display are unchanged (AC9).
+- [x] Merchant tests: a new Merchant hasn't been met; once marked met, it stays met.
+- [x] Encounter tests: the second call to the encounter method with the same Merchant prints the "moved on" message and nothing else from the encounter (no narrative, greeting, Gold line or menu), and changes no Player stat.
+- [x] Encounter tests: a player who starts below 5 Gold (automatic end at once) still gets "moved on" on the second visit (AC4).
+- [x] Encounter tests: a player who chose Leave without buying anything still gets "moved on" on the second visit.
+- [x] The "moved on" message takes the Merchant's name as a `{0}` placeholder and exists in all four languages.
+- [x] The dictionary key-count test is updated to the new total.
+- [x] Console-based tests save and restore `Console.In` and `Console.Out`.
+- [x] `dotnet test`: all existing tests plus the new tests pass, 0 failing (AC9, AC10).
+- [x] ADR 0001 unchanged (`git diff 51c1941 -- docs/0001-add-italian-language-support.md` prints nothing).
+- [x] The North path, Exit, the main menu, combat rules and the combat stats display are unchanged (AC9).
