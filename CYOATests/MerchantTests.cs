@@ -121,16 +121,60 @@ public class MerchantTests
     [DataRow(1, 4)]
     [DataRow(2, 7)]
     [DataRow(3, 7)]
-    public void Purchase_UnaffordableItem_ChangesNothingAndStaysUnsold(int menuNumber, int gold)
+    public void Purchase_UnaffordableItem_ReturnsInsufficientGoldChangesNothingAndStaysUnsold(int menuNumber, int gold)
     {
         Merchant merchant = new Merchant();
         Player player = PlayerWith(gold);
 
         PurchaseResult result = merchant.Purchase(player, menuNumber);
 
-        Assert.AreNotEqual(PurchaseResult.Purchased, result);
+        Assert.AreEqual(PurchaseResult.InsufficientGold, result);
         AssertStats(player, gold, health: 15, strength: 12, agility: 11);
         Assert.IsFalse(merchant.IsSold(menuNumber));
+    }
+
+    // AC3: buying the Tonic with exactly 8 Gold leaves 0, so it is now both Sold and unaffordable.
+    [TestMethod]
+    public void Purchase_ItemSoldAndUnaffordable_ReturnsAlreadySold()
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold: 8);
+        merchant.Purchase(player, 2);
+
+        PurchaseResult result = merchant.Purchase(player, 2);
+
+        Assert.AreEqual(PurchaseResult.AlreadySold, result);
+        AssertStats(player, gold: 0, health: 15, strength: 16, agility: 11);
+    }
+
+    // AC7: a mix of purchases and refusals never takes Gold below 0, and only the purchases change anything.
+    [TestMethod]
+    public void Purchase_AnySequenceOfAttempts_NeverMakesGoldNegative()
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold: 13);
+        int[] attempts = { 2, 3, 1, 1, 2, 3, 1, 2, 3 };
+        PurchaseResult[] expected =
+        {
+            PurchaseResult.Purchased,        // Tonic: 13 -> 5
+            PurchaseResult.InsufficientGold, // Elixir costs 8
+            PurchaseResult.Purchased,        // Potion: 5 -> 0
+            PurchaseResult.AlreadySold,
+            PurchaseResult.AlreadySold,
+            PurchaseResult.InsufficientGold,
+            PurchaseResult.AlreadySold,
+            PurchaseResult.AlreadySold,
+            PurchaseResult.InsufficientGold,
+        };
+
+        for (int i = 0; i < attempts.Length; i++)
+        {
+            Assert.AreEqual(expected[i], merchant.Purchase(player, attempts[i]), $"Attempt {i + 1} (Item {attempts[i]})");
+            Assert.IsTrue(player.Gold >= 0, $"Gold went negative after attempt {i + 1}: {player.Gold}");
+        }
+
+        AssertStats(player, gold: 0, health: 21, strength: 16, agility: 11);
+        Assert.IsFalse(merchant.IsSold(3));
     }
 
     [TestMethod]
@@ -429,22 +473,53 @@ public class MerchantEncounterTests
         StringAssert.Contains(output, "You have already bought the Healing Potion. Choose something else.");
     }
 
-    // Temporary until Ticket 04: an unaffordable Item shows "invalid" and changes nothing.
+    // AC17 flow, without the automatic end (Ticket 05): 7 Gold, refused the Tonic, still buys the Potion.
     [TestMethod]
-    [DataRow("1", 4)]
-    [DataRow("2", 7)]
-    [DataRow("3", 7)]
-    public void ChoosingUnaffordableItem_ForNow_ShowsInvalidAndChangesNothing(string choice, int gold)
+    public void AfterRefusal_PlayerCanStillBuyAnAffordableItem()
     {
         Messages messages = GetMessages();
+        Player player = NewPlayer(gold: 7);
+
+        string output = RunEncounter("2\n1\n4\n", player, new Merchant(), messages);
+
+        AssertInOrder(output,
+            "You need 8 Gold but have only 7.",
+            "4. Leave",
+            "You buy the Healing Potion. Health is now 21. You have 2 Gold left.",
+            "1. Healing Potion (+6 Health) - 5 Gold [Sold]");
+        Assert.AreEqual(2, player.Gold);
+        Assert.AreEqual(21, player.HealthPoints);
+        Assert.AreEqual(12, player.Strength);
+    }
+
+    [TestMethod]
+    public void ChoosingUnaffordableItem_InEnglish_ShowsPriceAndCurrentGold()
+    {
+        string output = RunEncounter("2\n4\n", NewPlayer(gold: 5), new Merchant(), GetMessages());
+
+        StringAssert.Contains(output, "You need 8 Gold but have only 5.");
+    }
+
+    // Prices from the R5 table; Gold is one short of each price (or far short).
+    [TestMethod]
+    [DataRow("English", "1", 5, 4)]
+    [DataRow("Spanish", "2", 8, 7)]
+    [DataRow("French", "3", 8, 5)]
+    [DataRow("Italian", "2", 8, 0)]
+    public void ChoosingUnaffordableItem_ShowsNotEnoughGold_ThenMenuAgain_AndChangesNothing(
+        string language, string choice, int price, int gold)
+    {
+        Messages messages = GetMessages(language);
         Player player = NewPlayer(gold);
 
         string output = RunEncounter($"{choice}\n4\n", player, new Merchant(), messages);
 
         AssertInOrder(output,
             messages.GetMessage("merchant_leave"),
-            messages.GetMessage("invalid"),
-            messages.GetMessage("merchant_leave"));
+            string.Format(messages.GetMessage("merchant_not_enough_gold"), price, gold),
+            messages.GetMessage("merchant_leave"),
+            string.Format(messages.GetMessage("merchant_farewell"), "Old Brannoc"));
+        Assert.IsFalse(output.Contains(messages.GetMessage("invalid")), "A refused purchase is not an invalid entry.");
         Assert.IsFalse(output.Contains(messages.GetMessage("merchant_sold_mark")), "An unaffordable Item must not be marked Sold.");
         Assert.AreEqual(gold, player.Gold);
         Assert.AreEqual(15, player.HealthPoints);

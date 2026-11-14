@@ -88,7 +88,8 @@
       "stat_name_agility": "Agility",
       "merchant_purchased": "You buy the {0}. {1} is now {2}. You have {3} Gold left.",
       "merchant_sold_mark": "[Sold]",
-      "merchant_already_sold": "You have already bought the {0}. Choose something else."
+      "merchant_already_sold": "You have already bought the {0}. Choose something else.",
+      "merchant_not_enough_gold": "You need {0} Gold but have only {1}."
     },
     "raceMap": {
       "human": "Human",
@@ -211,7 +212,8 @@
       "stat_name_agility": "Agilidad",
       "merchant_purchased": "Compras: {0}. Tu {1} ahora es {2}. Te quedan {3} de Oro.",
       "merchant_sold_mark": "[Vendido]",
-      "merchant_already_sold": "Ya compraste esto: {0}. Elige otra cosa."
+      "merchant_already_sold": "Ya compraste esto: {0}. Elige otra cosa.",
+      "merchant_not_enough_gold": "Necesitas {0} de Oro, pero solo tienes {1}."
     },
     "raceMap": {
       "humano": "Human",
@@ -334,7 +336,8 @@
       "stat_name_agility": "Agilite",
       "merchant_purchased": "Vous achetez : {0}. Votre {1} est maintenant de {2}. Il vous reste {3} Or.",
       "merchant_sold_mark": "[Vendu]",
-      "merchant_already_sold": "Vous avez deja achete cet objet : {0}. Choisissez autre chose."
+      "merchant_already_sold": "Vous avez deja achete cet objet : {0}. Choisissez autre chose.",
+      "merchant_not_enough_gold": "Il vous faut {0} Or, mais vous n'en avez que {1}."
     },
     "raceMap": {
       "humain": "Human",
@@ -457,7 +460,8 @@
       "stat_name_agility": "Agilità",
       "merchant_purchased": "Hai comprato: {0}. La tua {1} ora è {2}. Ti restano {3} Oro.",
       "merchant_sold_mark": "[Venduto]",
-      "merchant_already_sold": "Hai già comprato questo oggetto: {0}. Scegli qualcos'altro."
+      "merchant_already_sold": "Hai già comprato questo oggetto: {0}. Scegli qualcos'altro.",
+      "merchant_not_enough_gold": "Ti servono {0} Oro, ma ne hai solo {1}."
     },
     "raceMap": {
       "umano": "Human",

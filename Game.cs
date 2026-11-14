@@ -168,7 +168,8 @@ public class Game
             }
 
             string itemName = messages.GetMessage("item_" + merchant.GetItemKey(itemNumber));
-            switch (merchant.Purchase(player, itemNumber))
+            PurchaseResult result = merchant.Purchase(player, itemNumber);
+            switch (result)
             {
                 case PurchaseResult.Purchased:
                     PlayerStat stat = merchant.GetAffectedStat(itemNumber);
@@ -181,10 +182,14 @@ public class Game
                 case PurchaseResult.AlreadySold:
                     Console.WriteLine(string.Format(messages.GetMessage("merchant_already_sold"), itemName));
                     break;
-                default:
-                    // Unaffordable Items show "invalid" until Ticket 04 adds "not enough Gold".
-                    Console.WriteLine(messages.GetMessage("invalid"));
+                case PurchaseResult.InsufficientGold:
+                    Console.WriteLine(string.Format(messages.GetMessage("merchant_not_enough_gold"),
+                        merchant.GetPrice(itemNumber),
+                        player.Gold));
                     break;
+                default:
+                    // No silent fallback: a new PurchaseResult must be handled here explicitly.
+                    throw new InvalidOperationException($"Unhandled purchase result: {result}.");
             }
         }
 
