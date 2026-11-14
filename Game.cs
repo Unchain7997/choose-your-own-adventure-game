@@ -160,11 +160,57 @@ public class Game
             if (input == merchant.LeaveOption.ToString() || input == null)
                 break;
 
-            // Item choices are treated as invalid until purchases exist (Ticket 03).
-            Console.WriteLine(messages.GetMessage("invalid"));
+            int itemNumber = ItemNumberFromInput(merchant, input);
+            if (itemNumber == 0)
+            {
+                Console.WriteLine(messages.GetMessage("invalid"));
+                continue;
+            }
+
+            string itemName = messages.GetMessage("item_" + merchant.GetItemKey(itemNumber));
+            switch (merchant.Purchase(player, itemNumber))
+            {
+                case PurchaseResult.Purchased:
+                    PlayerStat stat = merchant.GetAffectedStat(itemNumber);
+                    Console.WriteLine(string.Format(messages.GetMessage("merchant_purchased"),
+                        itemName,
+                        messages.GetMessage(StatNameKey(stat)),
+                        Merchant.GetStatValue(player, stat),
+                        player.Gold));
+                    break;
+                case PurchaseResult.AlreadySold:
+                    Console.WriteLine(string.Format(messages.GetMessage("merchant_already_sold"), itemName));
+                    break;
+                default:
+                    // Unaffordable Items show "invalid" until Ticket 04 adds "not enough Gold".
+                    Console.WriteLine(messages.GetMessage("invalid"));
+                    break;
+            }
         }
 
         Console.WriteLine(string.Format(messages.GetMessage("merchant_farewell"), merchant.Name));
+    }
+
+    // Translation key for a stat's name in purchase confirmations. No fallback: GetMessage would
+    // otherwise print "[key]" for an unknown stat, so an unsupported stat fails explicitly.
+    private static string StatNameKey(PlayerStat stat) => stat switch
+    {
+        PlayerStat.HealthPoints => "stat_name_health",
+        PlayerStat.Strength => "stat_name_strength",
+        PlayerStat.Agility => "stat_name_agility",
+        _ => throw new ArgumentOutOfRangeException(nameof(stat), stat, "No stat name message for this stat."),
+    };
+
+    // Returns the Item's menu number when the input exactly matches one (1 to ItemCount); 0 means "not an Item".
+    private static int ItemNumberFromInput(Merchant merchant, string input)
+    {
+        for (int number = 1; number <= merchant.ItemCount; number++)
+        {
+            if (input == number.ToString())
+                return number;
+        }
+
+        return 0;
     }
 
     // Menu numbers are generated here; the translated texts never carry them.
@@ -173,11 +219,12 @@ public class Game
         for (int number = 1; number <= merchant.ItemCount; number++)
         {
             string itemKey = merchant.GetItemKey(number);
+            string soldMark = merchant.IsSold(number) ? " " + messages.GetMessage("merchant_sold_mark") : "";
             Console.WriteLine($"{number}. " + string.Format(
                 messages.GetMessage("merchant_menu_line"),
                 messages.GetMessage("item_" + itemKey),
                 string.Format(messages.GetMessage("effect_" + itemKey), merchant.GetBonus(number)),
-                merchant.GetPrice(number)));
+                merchant.GetPrice(number)) + soldMark);
         }
 
         Console.WriteLine($"{merchant.LeaveOption}. " + messages.GetMessage("merchant_leave"));

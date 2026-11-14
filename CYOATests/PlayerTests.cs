@@ -109,4 +109,17 @@ public class PlayerTests
 
         StringAssert.Contains(output.ToString(), expectedLabel + "13");
     }
+
+    // AC14: the Strength Tonic's +4 reaches combat through AttackHits, with no combat code change.
+    [TestMethod]
+    public void AfterBuyingStrengthTonic_RollEqualToNewStrength_NowHits()
+    {
+        Player player = new Player { Strength = 12, Gold = 8 };
+        Assert.IsFalse(player.AttackHits(16), "A roll of 16 should miss with Strength 12.");
+
+        Assert.AreEqual(PurchaseResult.Purchased, new Merchant().Purchase(player, 2));
+
+        Assert.AreEqual(16, player.Strength);
+        Assert.IsTrue(player.AttackHits(16));
+    }
 }

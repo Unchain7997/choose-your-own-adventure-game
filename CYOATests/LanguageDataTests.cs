@@ -50,10 +50,10 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll82DictionaryKeys(string language)
+    public void Language_HasAll88DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(82, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(88, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
     }
 
     private static readonly string[] MerchantKeys =
@@ -61,7 +61,9 @@ public class LanguageDataTests
         "merchant_greeting", "merchant_gold_display",
         "item_healing_potion", "item_strength_tonic", "item_agility_elixir",
         "effect_healing_potion", "effect_strength_tonic", "effect_agility_elixir",
-        "merchant_menu_line", "merchant_leave", "merchant_farewell"
+        "merchant_menu_line", "merchant_leave", "merchant_farewell",
+        "stat_name_health", "stat_name_strength", "stat_name_agility",
+        "merchant_purchased", "merchant_sold_mark", "merchant_already_sold"
     };
 
     [TestMethod]
@@ -212,14 +214,43 @@ public class LanguageDataTests
 
         foreach (JsonProperty entry in LoadSection(doc, language).GetProperty("dictionary").EnumerateObject())
         {
+            string text = entry.Value.GetString()!;
+
+            // One argument per placeholder index the message uses, so messages with any number of
+            // placeholders (e.g. merchant_purchased's {0}-{3}) are validated in full.
+            int argumentCount = Regex.Matches(text, @"\{(\d+)")
+                .Select(m => int.Parse(m.Groups[1].Value) + 1)
+                .DefaultIfEmpty(0)
+                .Max();
+            object[] arguments = Enumerable.Range(0, argumentCount).Select(i => (object)$"<arg{i}>").ToArray();
+
+            string formatted = "";
             try
             {
-                string.Format(entry.Value.GetString()!, "arg0", "arg1", "arg2");
+                formatted = string.Format(text, arguments);
             }
             catch (FormatException)
             {
                 Assert.Fail($"{language} key '{entry.Name}' is not a valid format string.");
             }
+
+            foreach (string placeholder in Regex.Matches(text, @"\{(\d+)\}").Select(m => m.Groups[1].Value).Distinct())
+                StringAssert.Contains(formatted, $"<arg{placeholder}>",
+                    $"{language} key '{entry.Name}' did not substitute {{{placeholder}}}.");
         }
+    }
+
+    // Item name, stat name, new stat value, Gold left.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_PurchaseConfirmation_HasFourPlaceholders(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        string text = LoadSection(doc, language).GetProperty("dictionary").GetProperty("merchant_purchased").GetString()!;
+
+        Assert.AreEqual("{0},{1},{2},{3}", Placeholders(text));
     }
 }

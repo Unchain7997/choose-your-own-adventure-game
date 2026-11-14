@@ -26,12 +26,126 @@ public class MerchantTests
     }
 
     [TestMethod]
+    [DataRow(1, PlayerStat.HealthPoints)]
+    [DataRow(2, PlayerStat.Strength)]
+    [DataRow(3, PlayerStat.Agility)]
+    public void Item_RaisesTheStatFromCatalogue(int menuNumber, PlayerStat expectedStat)
+    {
+        Assert.AreEqual(expectedStat, new Merchant().GetAffectedStat(menuNumber));
+    }
+
+    // Distinct values per stat, so reading the wrong property is caught.
+    [TestMethod]
+    [DataRow(PlayerStat.HealthPoints, 15)]
+    [DataRow(PlayerStat.Strength, 12)]
+    [DataRow(PlayerStat.Agility, 11)]
+    public void GetStatValue_ReadsTheMatchingPlayerStat(PlayerStat stat, int expected)
+    {
+        Player player = new Player { HealthPoints = 15, Strength = 12, Agility = 11, Gold = 20 };
+
+        Assert.AreEqual(expected, Merchant.GetStatValue(player, stat));
+    }
+
+    [TestMethod]
+    public void GetStatValue_UnsupportedStat_FailsExplicitly()
+    {
+        Player player = new Player { HealthPoints = 15, Strength = 12, Agility = 11 };
+
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => Merchant.GetStatValue(player, (PlayerStat)99));
+    }
+
+    [TestMethod]
     public void Catalogue_HasThreeItems_AndLeaveIsOptionFour()
     {
         Merchant merchant = new Merchant();
 
         Assert.AreEqual(3, merchant.ItemCount);
         Assert.AreEqual(4, merchant.LeaveOption);
+    }
+
+    private static Player PlayerWith(int gold) => new Player
+    {
+        Strength = 12,
+        Agility = 11,
+        HealthPoints = 15,
+        Gold = gold
+    };
+
+    // Starting stats are Strength 12, Agility 11, HealthPoints 15; expected values follow the R5 table.
+    [TestMethod]
+    [DataRow(1, 15, 21, 12, 11)] // Healing Potion: 5 Gold, +6 HealthPoints
+    [DataRow(2, 12, 15, 16, 11)] // Strength Tonic: 8 Gold, +4 Strength
+    [DataRow(3, 12, 15, 12, 15)] // Agility Elixir: 8 Gold, +4 Agility
+    public void Purchase_AffordableUnsoldItem_DeductsPriceAppliesBonusAndMarksSold(
+        int menuNumber, int expectedGold, int expectedHealth, int expectedStrength, int expectedAgility)
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold: 20);
+        Assert.IsFalse(merchant.IsSold(menuNumber));
+
+        PurchaseResult result = merchant.Purchase(player, menuNumber);
+
+        Assert.AreEqual(PurchaseResult.Purchased, result);
+        AssertStats(player, expectedGold, expectedHealth, expectedStrength, expectedAgility);
+        Assert.IsTrue(merchant.IsSold(menuNumber));
+    }
+
+    private static void AssertStats(Player player, int gold, int health, int strength, int agility)
+    {
+        Assert.AreEqual(gold, player.Gold, "Gold");
+        Assert.AreEqual(health, player.HealthPoints, "HealthPoints");
+        Assert.AreEqual(strength, player.Strength, "Strength");
+        Assert.AreEqual(agility, player.Agility, "Agility");
+    }
+
+    [TestMethod]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    public void Purchase_SoldItem_ReturnsAlreadySoldAndChangesNothing(int menuNumber)
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold: 20);
+        merchant.Purchase(player, menuNumber);
+        int gold = player.Gold, health = player.HealthPoints, strength = player.Strength, agility = player.Agility;
+
+        PurchaseResult result = merchant.Purchase(player, menuNumber);
+
+        Assert.AreEqual(PurchaseResult.AlreadySold, result);
+        AssertStats(player, gold, health, strength, agility);
+        Assert.IsTrue(merchant.IsSold(menuNumber));
+    }
+
+    // One Gold short of each price.
+    [TestMethod]
+    [DataRow(1, 4)]
+    [DataRow(2, 7)]
+    [DataRow(3, 7)]
+    public void Purchase_UnaffordableItem_ChangesNothingAndStaysUnsold(int menuNumber, int gold)
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold);
+
+        PurchaseResult result = merchant.Purchase(player, menuNumber);
+
+        Assert.AreNotEqual(PurchaseResult.Purchased, result);
+        AssertStats(player, gold, health: 15, strength: 12, agility: 11);
+        Assert.IsFalse(merchant.IsSold(menuNumber));
+    }
+
+    [TestMethod]
+    public void Purchase_TwoDifferentItems_BothSucceedInOneEncounter()
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold: 20);
+
+        Assert.AreEqual(PurchaseResult.Purchased, merchant.Purchase(player, 2));
+        Assert.AreEqual(PurchaseResult.Purchased, merchant.Purchase(player, 3));
+
+        AssertStats(player, gold: 4, health: 15, strength: 16, agility: 15);
+        Assert.IsFalse(merchant.IsSold(1));
+        Assert.IsTrue(merchant.IsSold(2));
+        Assert.IsTrue(merchant.IsSold(3));
     }
 }
 
@@ -213,15 +327,117 @@ public class MerchantEncounterTests
         Assert.AreEqual(20, player.Gold);
     }
 
-    // Temporary until Ticket 03 adds purchases: Item choices behave like invalid input.
     [TestMethod]
-    [DataRow("1")]
-    [DataRow("2")]
-    [DataRow("3")]
-    public void ChoosingAnItem_ForNow_ShowsInvalidAndChangesNothing(string choice)
+    public void BuyingAnItem_InEnglish_ShowsNewStatAndGoldLeft_ThenMenuAgain()
     {
         Messages messages = GetMessages();
         Player player = NewPlayer(gold: 20);
+
+        string output = RunEncounter("2\n4\n", player, new Merchant(), messages);
+
+        AssertInOrder(output,
+            "4. Leave",
+            "You buy the Strength Tonic. Strength is now 16. You have 12 Gold left.",
+            "1. Healing Potion (+6 Health) - 5 Gold",
+            "4. Leave");
+        Assert.AreEqual(12, player.Gold);
+        Assert.AreEqual(16, player.Strength);
+    }
+
+    // Starting stats are HealthPoints 15, Strength 12, Agility 11 with 20 Gold.
+    [TestMethod]
+    [DataRow("English", "1", "healing_potion", "health", 21, 15)]
+    [DataRow("Spanish", "2", "strength_tonic", "strength", 16, 12)]
+    [DataRow("French", "3", "agility_elixir", "agility", 15, 12)]
+    [DataRow("Italian", "1", "healing_potion", "health", 21, 15)]
+    public void BuyingAnItem_ShowsTranslatedConfirmation_ThenMenuAgain(
+        string language, string choice, string itemKey, string statKey, int newStat, int goldLeft)
+    {
+        Messages messages = GetMessages(language);
+
+        string output = RunEncounter($"{choice}\n4\n", NewPlayer(gold: 20), new Merchant(), messages);
+
+        AssertInOrder(output,
+            messages.GetMessage("merchant_leave"),
+            string.Format(messages.GetMessage("merchant_purchased"),
+                messages.GetMessage($"item_{itemKey}"), messages.GetMessage($"stat_name_{statKey}"), newStat, goldLeft),
+            messages.GetMessage("merchant_leave"),
+            string.Format(messages.GetMessage("merchant_farewell"), "Old Brannoc"));
+    }
+
+    // AC8 and AC18: a Sold Item keeps its number and price and gains the Sold mark; other lines are unchanged.
+    [TestMethod]
+    public void AfterPurchase_SoldItemStaysListedWithMark_AndNumbersDoNotChange()
+    {
+        Messages messages = GetMessages();
+
+        string output = RunEncounter("3\n4\n", NewPlayer(gold: 20), new Merchant(), messages);
+
+        string afterPurchase = output[output.IndexOf("You buy the Agility Elixir. Agility is now 15.", StringComparison.Ordinal)..];
+        AssertInOrder(afterPurchase,
+            "1. Healing Potion (+6 Health) - 5 Gold" + Environment.NewLine,
+            "2. Strength Tonic (+4 Strength) - 8 Gold" + Environment.NewLine,
+            "3. Agility Elixir (+4 Agility) - 8 Gold [Sold]" + Environment.NewLine,
+            "4. Leave");
+        Assert.IsFalse(output[..output.IndexOf("You buy", StringComparison.Ordinal)].Contains("[Sold]"),
+            "Nothing should be marked Sold before the purchase.");
+    }
+
+    [TestMethod]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void AfterPurchase_SoldMarkIsTranslated(string language)
+    {
+        Messages messages = GetMessages(language);
+
+        string output = RunEncounter("2\n4\n", NewPlayer(gold: 20), new Merchant(), messages);
+
+        string soldLine = "2. " + string.Format(messages.GetMessage("merchant_menu_line"),
+            messages.GetMessage("item_strength_tonic"),
+            string.Format(messages.GetMessage("effect_strength_tonic"), 4), 8)
+            + " " + messages.GetMessage("merchant_sold_mark");
+        StringAssert.Contains(output, soldLine);
+        Assert.AreNotEqual("[Sold]", messages.GetMessage("merchant_sold_mark"));
+    }
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void ChoosingSoldItem_ShowsAlreadyBought_ThenMenuAgain_AndChangesNothing(string language)
+    {
+        Messages messages = GetMessages(language);
+        Player player = NewPlayer(gold: 20);
+
+        string output = RunEncounter("1\n 1 \n4\n", player, new Merchant(), messages);
+
+        AssertInOrder(output,
+            string.Format(messages.GetMessage("merchant_already_sold"), messages.GetMessage("item_healing_potion")),
+            messages.GetMessage("merchant_leave"),
+            string.Format(messages.GetMessage("merchant_farewell"), "Old Brannoc"));
+        Assert.AreEqual(15, player.Gold);
+        Assert.AreEqual(21, player.HealthPoints);
+    }
+
+    [TestMethod]
+    public void ChoosingSoldItem_InEnglish_ShowsAlreadyBoughtMessage()
+    {
+        string output = RunEncounter("1\n1\n4\n", NewPlayer(gold: 20), new Merchant(), GetMessages());
+
+        StringAssert.Contains(output, "You have already bought the Healing Potion. Choose something else.");
+    }
+
+    // Temporary until Ticket 04: an unaffordable Item shows "invalid" and changes nothing.
+    [TestMethod]
+    [DataRow("1", 4)]
+    [DataRow("2", 7)]
+    [DataRow("3", 7)]
+    public void ChoosingUnaffordableItem_ForNow_ShowsInvalidAndChangesNothing(string choice, int gold)
+    {
+        Messages messages = GetMessages();
+        Player player = NewPlayer(gold);
 
         string output = RunEncounter($"{choice}\n4\n", player, new Merchant(), messages);
 
@@ -229,7 +445,8 @@ public class MerchantEncounterTests
             messages.GetMessage("merchant_leave"),
             messages.GetMessage("invalid"),
             messages.GetMessage("merchant_leave"));
-        Assert.AreEqual(20, player.Gold);
+        Assert.IsFalse(output.Contains(messages.GetMessage("merchant_sold_mark")), "An unaffordable Item must not be marked Sold.");
+        Assert.AreEqual(gold, player.Gold);
         Assert.AreEqual(15, player.HealthPoints);
         Assert.AreEqual(12, player.Strength);
         Assert.AreEqual(11, player.Agility);

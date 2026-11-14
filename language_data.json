@@ -82,7 +82,13 @@
       "effect_agility_elixir": "+{0} Agility",
       "merchant_menu_line": "{0} ({1}) - {2} Gold",
       "merchant_leave": "Leave",
-      "merchant_farewell": "\"Safe travels, and mind the dragon to the North!\" {0} calls as you head back to the crossroads."
+      "merchant_farewell": "\"Safe travels, and mind the dragon to the North!\" {0} calls as you head back to the crossroads.",
+      "stat_name_health": "Health",
+      "stat_name_strength": "Strength",
+      "stat_name_agility": "Agility",
+      "merchant_purchased": "You buy the {0}. {1} is now {2}. You have {3} Gold left.",
+      "merchant_sold_mark": "[Sold]",
+      "merchant_already_sold": "You have already bought the {0}. Choose something else."
     },
     "raceMap": {
       "human": "Human",
@@ -199,7 +205,13 @@
       "effect_agility_elixir": "+{0} Agilidad",
       "merchant_menu_line": "{0} ({1}) - {2} Oro",
       "merchant_leave": "Marcharse",
-      "merchant_farewell": "\"Buen viaje, y cuidado con el dragon del norte!\" te dice {0} mientras regresas al cruce."
+      "merchant_farewell": "\"Buen viaje, y cuidado con el dragon del norte!\" te dice {0} mientras regresas al cruce.",
+      "stat_name_health": "Vida",
+      "stat_name_strength": "Fuerza",
+      "stat_name_agility": "Agilidad",
+      "merchant_purchased": "Compras: {0}. Tu {1} ahora es {2}. Te quedan {3} de Oro.",
+      "merchant_sold_mark": "[Vendido]",
+      "merchant_already_sold": "Ya compraste esto: {0}. Elige otra cosa."
     },
     "raceMap": {
       "humano": "Human",
@@ -316,7 +328,13 @@
       "effect_agility_elixir": "+{0} Agilite",
       "merchant_menu_line": "{0} ({1}) - {2} Or",
       "merchant_leave": "Partir",
-      "merchant_farewell": "\"Bon voyage, et mefiez-vous du dragon au nord !\" lance {0} tandis que vous retournez au carrefour."
+      "merchant_farewell": "\"Bon voyage, et mefiez-vous du dragon au nord !\" lance {0} tandis que vous retournez au carrefour.",
+      "stat_name_health": "Vie",
+      "stat_name_strength": "Force",
+      "stat_name_agility": "Agilite",
+      "merchant_purchased": "Vous achetez : {0}. Votre {1} est maintenant de {2}. Il vous reste {3} Or.",
+      "merchant_sold_mark": "[Vendu]",
+      "merchant_already_sold": "Vous avez deja achete cet objet : {0}. Choisissez autre chose."
     },
     "raceMap": {
       "humain": "Human",
@@ -433,7 +451,13 @@
       "effect_agility_elixir": "+{0} Agilità",
       "merchant_menu_line": "{0} ({1}) - {2} Oro",
       "merchant_leave": "Andarsene",
-      "merchant_farewell": "\"Buon viaggio, e attento al drago a nord!\" esclama {0} mentre torni al bivio."
+      "merchant_farewell": "\"Buon viaggio, e attento al drago a nord!\" esclama {0} mentre torni al bivio.",
+      "stat_name_health": "Salute",
+      "stat_name_strength": "Forza",
+      "stat_name_agility": "Agilità",
+      "merchant_purchased": "Hai comprato: {0}. La tua {1} ora è {2}. Ti restano {3} Oro.",
+      "merchant_sold_mark": "[Venduto]",
+      "merchant_already_sold": "Hai già comprato questo oggetto: {0}. Scegli qualcos'altro."
     },
     "raceMap": {
       "umano": "Human",
