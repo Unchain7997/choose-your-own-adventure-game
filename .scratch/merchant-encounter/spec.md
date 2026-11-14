@@ -1,10 +1,17 @@
 # Spec: Merchant Encounter
 
-Status: ready-for-agent
+Status: resolved
 
 Feature slug: `merchant-encounter`
 Branch: `feature/merchant-encounter`
 Baseline: 143 passing tests, 0 failing (verified 2026-11-12 with `dotnet test`)
+
+Completion (2026-11-13): implementation and acceptance testing are complete.
+- All six tickets (`issues/01`–`06`) are resolved, in commits `5a3d581` through `5f6c736`.
+- `dotnet build`: 0 errors, 0 warnings. `dotnet test`: 262 passed, 0 failed, 0 skipped (AC10).
+- Scripted gameplay walkthroughs passed in English, Spanish, French and Italian. They covered the South path, purchases, Sold, not enough Gold, the automatic end, a repeat South visit, the North path, dragon combat and Exit.
+- ADR 0001 is unchanged: `git diff 51c1941 -- docs/0001-add-italian-language-support.md` prints nothing (AC12).
+- The requirements and decisions below are unchanged from the approved spec.
 
 ## Problem Statement
 
