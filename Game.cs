@@ -150,7 +150,10 @@ public class Game
         Console.WriteLine(string.Format(messages.GetMessage("merchant_greeting"), merchant.Name));
         Console.WriteLine(string.Format(messages.GetMessage("merchant_gold_display"), player.Gold));
 
-        while (true)
+        // R9, AC2: checked here and after each successful purchase only; a refused choice never ends the encounter.
+        bool endedAutomatically = !merchant.CanAffordAnyUnsoldItem(player);
+
+        while (!endedAutomatically)
         {
             DisplayMerchantMenu(merchant, messages);
             Console.Write(messages.GetMessage("enter_choice"));
@@ -178,6 +181,7 @@ public class Game
                         messages.GetMessage(StatNameKey(stat)),
                         Merchant.GetStatValue(player, stat),
                         player.Gold));
+                    endedAutomatically = !merchant.CanAffordAnyUnsoldItem(player);
                     break;
                 case PurchaseResult.AlreadySold:
                     Console.WriteLine(string.Format(messages.GetMessage("merchant_already_sold"), itemName));
@@ -192,6 +196,9 @@ public class Game
                     throw new InvalidOperationException($"Unhandled purchase result: {result}.");
             }
         }
+
+        if (endedAutomatically)
+            Console.WriteLine(messages.GetMessage("merchant_nothing_affordable"));
 
         Console.WriteLine(string.Format(messages.GetMessage("merchant_farewell"), merchant.Name));
     }

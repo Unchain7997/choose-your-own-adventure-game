@@ -50,10 +50,10 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll89DictionaryKeys(string language)
+    public void Language_HasAll90DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(89, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(90, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
     }
 
     private static readonly string[] MerchantKeys =
@@ -64,7 +64,7 @@ public class LanguageDataTests
         "merchant_menu_line", "merchant_leave", "merchant_farewell",
         "stat_name_health", "stat_name_strength", "stat_name_agility",
         "merchant_purchased", "merchant_sold_mark", "merchant_already_sold",
-        "merchant_not_enough_gold"
+        "merchant_not_enough_gold", "merchant_nothing_affordable"
     };
 
     [TestMethod]

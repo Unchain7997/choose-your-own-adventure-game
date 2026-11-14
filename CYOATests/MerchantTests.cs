@@ -191,6 +191,36 @@ public class MerchantTests
         Assert.IsTrue(merchant.IsSold(2));
         Assert.IsTrue(merchant.IsSold(3));
     }
+
+    // R9: the cheapest Item (Healing Potion) costs 5 Gold.
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(4)]
+    public void CanAffordAnyUnsoldItem_BelowFiveGold_IsFalse(int gold)
+    {
+        Assert.IsFalse(new Merchant().CanAffordAnyUnsoldItem(PlayerWith(gold)));
+    }
+
+    // With 7 Gold only the Potion (5) is within reach, and it is Sold; the Elixir costs 8.
+    [TestMethod]
+    public void CanAffordAnyUnsoldItem_EveryAffordableItemSold_IsFalse()
+    {
+        Merchant merchant = new Merchant();
+        Player player = PlayerWith(gold: 20);
+        merchant.Purchase(player, 1);
+        merchant.Purchase(player, 2);
+        player.Gold = 7;
+
+        Assert.IsFalse(merchant.CanAffordAnyUnsoldItem(player));
+    }
+
+    [TestMethod]
+    [DataRow(5)]
+    [DataRow(7)]
+    public void CanAffordAnyUnsoldItem_OnlyThePotionAffordable_IsTrue(int gold)
+    {
+        Assert.IsTrue(new Merchant().CanAffordAnyUnsoldItem(PlayerWith(gold)));
+    }
 }
 
 // Seam 2: Game.HandleMerchantEncounter with scripted Console input and captured output.
@@ -473,9 +503,10 @@ public class MerchantEncounterTests
         StringAssert.Contains(output, "You have already bought the Healing Potion. Choose something else.");
     }
 
-    // AC17 flow, without the automatic end (Ticket 05): 7 Gold, refused the Tonic, still buys the Potion.
+    // AC17: 7 Gold. The Tonic is refused with nothing changed and the menu shown again; the Potion
+    // can still be bought, which leaves 2 Gold and ends the encounter automatically.
     [TestMethod]
-    public void AfterRefusal_PlayerCanStillBuyAnAffordableItem()
+    public void AC17_SevenGold_RefusedTonic_ThenPotion_EndsAutomatically()
     {
         Messages messages = GetMessages();
         Player player = NewPlayer(gold: 7);
@@ -483,13 +514,63 @@ public class MerchantEncounterTests
         string output = RunEncounter("2\n1\n4\n", player, new Merchant(), messages);
 
         AssertInOrder(output,
-            "You need 8 Gold but have only 7.",
-            "4. Leave",
-            "You buy the Healing Potion. Health is now 21. You have 2 Gold left.",
-            "1. Healing Potion (+6 Health) - 5 Gold [Sold]");
+            NotEnoughGold(messages, 8, 7),
+            PotionMenuLine(messages),
+            LeaveLine(messages),
+            Purchased(messages, "healing_potion", "health", 21, 2),
+            Reason(messages),
+            Farewell(messages));
+        Assert.IsFalse(output.Contains(messages.GetMessage("merchant_sold_mark")),
+            "The menu should not be shown again after the automatic end.");
+        Assert.AreEqual(2, CountOf(output, LeaveLine(messages)), "Menu shown at the start and once after the refusal only.");
         Assert.AreEqual(2, player.Gold);
         Assert.AreEqual(21, player.HealthPoints);
         Assert.AreEqual(12, player.Strength);
+        Assert.AreEqual(11, player.Agility);
+    }
+
+    // AC15: 13 Gold. Potion (8 left, +6 HealthPoints), then Tonic (0 left, +4 Strength), then the automatic end.
+    [TestMethod]
+    public void AC15_ThirteenGold_PotionThenTonic_EndsAutomatically()
+    {
+        Messages messages = GetMessages();
+        Player player = NewPlayer(gold: 13);
+
+        string output = RunEncounter("1\n2\n4\n", player, new Merchant(), messages);
+
+        AssertInOrder(output,
+            Purchased(messages, "healing_potion", "health", 21, 8),
+            LeaveLine(messages),
+            Purchased(messages, "strength_tonic", "strength", 16, 0),
+            Reason(messages),
+            Farewell(messages));
+        Assert.AreEqual(2, CountOf(output, LeaveLine(messages)));
+        Assert.AreEqual(0, player.Gold);
+        Assert.AreEqual(21, player.HealthPoints);
+        Assert.AreEqual(16, player.Strength);
+        Assert.AreEqual(11, player.Agility);
+    }
+
+    // AC16: 20 Gold. Tonic (12 left), then Elixir (4 left), then the automatic end; the Potion can't be bought too.
+    [TestMethod]
+    public void AC16_TwentyGold_TonicThenElixir_EndsAutomatically_PotionNotBought()
+    {
+        Messages messages = GetMessages();
+        Player player = NewPlayer(gold: 20);
+        Merchant merchant = new Merchant();
+
+        string output = RunEncounter("2\n3\n1\n4\n", player, merchant, messages);
+
+        AssertInOrder(output,
+            Purchased(messages, "strength_tonic", "strength", 16, 12),
+            Purchased(messages, "agility_elixir", "agility", 15, 4),
+            Reason(messages),
+            Farewell(messages));
+        Assert.IsFalse(merchant.IsSold(1), "Not all three Items can be bought.");
+        Assert.AreEqual(4, player.Gold);
+        Assert.AreEqual(15, player.HealthPoints);
+        Assert.AreEqual(16, player.Strength);
+        Assert.AreEqual(15, player.Agility);
     }
 
     [TestMethod]
@@ -500,12 +581,13 @@ public class MerchantEncounterTests
         StringAssert.Contains(output, "You need 8 Gold but have only 5.");
     }
 
-    // Prices from the R5 table; Gold is one short of each price (or far short).
+    // Prices from the R5 table. Gold is at least 5, because below 5 the menu never opens (AC1);
+    // for the same reason the Healing Potion (5 Gold) can never be refused for lack of Gold.
     [TestMethod]
-    [DataRow("English", "1", 5, 4)]
+    [DataRow("English", "2", 8, 5)]
     [DataRow("Spanish", "2", 8, 7)]
     [DataRow("French", "3", 8, 5)]
-    [DataRow("Italian", "2", 8, 0)]
+    [DataRow("Italian", "3", 8, 6)]
     public void ChoosingUnaffordableItem_ShowsNotEnoughGold_ThenMenuAgain_AndChangesNothing(
         string language, string choice, int price, int gold)
     {
@@ -525,5 +607,140 @@ public class MerchantEncounterTests
         Assert.AreEqual(15, player.HealthPoints);
         Assert.AreEqual(12, player.Strength);
         Assert.AreEqual(11, player.Agility);
+    }
+
+    private static string Reason(Messages messages) => messages.GetMessage("merchant_nothing_affordable");
+
+    private static string Farewell(Messages messages) =>
+        string.Format(messages.GetMessage("merchant_farewell"), "Old Brannoc");
+
+    private static int CountOf(string output, string text) => output.Split(text).Length - 1;
+
+    private static string LeaveLine(Messages messages) => "4. " + messages.GetMessage("merchant_leave");
+
+    private static string PotionMenuLine(Messages messages) => "1. " + string.Format(
+        messages.GetMessage("merchant_menu_line"),
+        messages.GetMessage("item_healing_potion"),
+        string.Format(messages.GetMessage("effect_healing_potion"), 6), 5);
+
+    private static string Purchased(Messages messages, string item, string stat, int newValue, int goldLeft) =>
+        string.Format(messages.GetMessage("merchant_purchased"),
+            messages.GetMessage($"item_{item}"), messages.GetMessage($"stat_name_{stat}"), newValue, goldLeft);
+
+    private static string NotEnoughGold(Messages messages, int price, int gold) =>
+        string.Format(messages.GetMessage("merchant_not_enough_gold"), price, gold);
+
+    // AC1: below 5 Gold the menu is never shown; the reason line and farewell follow the Gold line.
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(4)]
+    public void StartingBelowFiveGold_ShowsNoMenu_ThenReasonThenFarewell(int gold)
+    {
+        Messages messages = GetMessages();
+        Merchant merchant = new Merchant();
+        Player player = NewPlayer(gold);
+
+        string output = RunEncounter("1\n", player, merchant, messages);
+
+        AssertInOrder(output,
+            messages.GetMessage("south_path_narrative"),
+            string.Format(messages.GetMessage("merchant_greeting"), merchant.Name),
+            string.Format(messages.GetMessage("merchant_gold_display"), gold),
+            Reason(messages),
+            Farewell(messages));
+        Assert.IsFalse(output.Contains(messages.GetMessage("merchant_leave")), "No menu should be shown.");
+        Assert.IsFalse(output.Contains(messages.GetMessage("item_healing_potion")), "No menu should be shown.");
+        Assert.IsFalse(output.Contains(messages.GetMessage("enter_choice")), "No choice should be asked for.");
+        Assert.AreEqual(gold, player.Gold);
+        Assert.AreEqual(15, player.HealthPoints);
+    }
+
+    // AC2: after buying the Tonic, 5 Gold is left and only the Potion is affordable. Each refused
+    // choice shows the menu again instead of ending the encounter; Leave then ends it with no reason line.
+    [TestMethod]
+    [DataRow("2")] // Sold
+    [DataRow("3")] // Unaffordable: the Elixir costs 8
+    [DataRow("x")] // Invalid
+    public void RefusedChoice_NeverEndsTheEncounterAutomatically(string refusedChoice)
+    {
+        Messages messages = GetMessages();
+        Player player = NewPlayer(gold: 13);
+
+        string output = RunEncounter($"2\n{refusedChoice}\n{refusedChoice}\n4\n", player, new Merchant(), messages);
+
+        string refusal = refusedChoice switch
+        {
+            "2" => string.Format(messages.GetMessage("merchant_already_sold"), messages.GetMessage("item_strength_tonic")),
+            "3" => NotEnoughGold(messages, 8, 5),
+            _ => messages.GetMessage("invalid"),
+        };
+        AssertInOrder(output,
+            Purchased(messages, "strength_tonic", "strength", 16, 5),
+            refusal, LeaveLine(messages),
+            refusal, LeaveLine(messages),
+            Farewell(messages));
+        Assert.IsFalse(output.Contains(Reason(messages)), "A refused choice must not end the encounter.");
+        Assert.AreEqual(5, player.Gold);
+    }
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void ChoosingLeave_ShowsOnlyTheFarewell_NoReasonLine(string language)
+    {
+        Messages messages = GetMessages(language);
+
+        string output = RunEncounter("1\n4\n", NewPlayer(gold: 20), new Merchant(), messages);
+
+        Assert.AreEqual(1, CountOf(output, Farewell(messages)));
+        Assert.IsFalse(output.Contains(Reason(messages)), "Leave must not show the reason line.");
+    }
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void AutomaticEnd_ReasonLineThenFarewell_EndTheEncounter(string language)
+    {
+        Messages messages = GetMessages(language);
+
+        string output = RunEncounter("1\n", NewPlayer(gold: 5), new Merchant(), messages);
+
+        string ending = Reason(messages) + Environment.NewLine + Farewell(messages) + Environment.NewLine;
+        Assert.IsTrue(output.EndsWith(ending), $"Expected the reason line then the farewell at the end:\n{output}");
+    }
+
+    // A full run in each other language: greeting, menu, two purchases, then the automatic end (AC15 numbers).
+    [TestMethod]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void FullEncounterRun_InOtherLanguages_PurchasesThenEndsAutomatically(string language)
+    {
+        Messages messages = GetMessages(language);
+        Merchant merchant = new Merchant();
+        Player player = NewPlayer(gold: 13);
+
+        string output = RunEncounter("1\n2\n", player, merchant, messages);
+
+        AssertInOrder(output,
+            messages.GetMessage("south_path_narrative"),
+            string.Format(messages.GetMessage("merchant_greeting"), merchant.Name),
+            string.Format(messages.GetMessage("merchant_gold_display"), 13),
+            LeaveLine(messages),
+            messages.GetMessage("enter_choice"),
+            Purchased(messages, "healing_potion", "health", 21, 8),
+            messages.GetMessage("merchant_sold_mark"),
+            Purchased(messages, "strength_tonic", "strength", 16, 0),
+            Reason(messages),
+            Farewell(messages));
+        Assert.AreNotEqual(GetMessages().GetMessage("merchant_nothing_affordable"), Reason(messages),
+            $"{language} reason line is not translated.");
+        Assert.AreEqual(0, player.Gold);
+        Assert.AreEqual(21, player.HealthPoints);
+        Assert.AreEqual(16, player.Strength);
     }
 }

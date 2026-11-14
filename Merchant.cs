@@ -66,6 +66,18 @@ public class Merchant
         return PurchaseResult.Purchased;
     }
 
+    // Drives the automatic end of the encounter (R9): false once no unsold Item is within the Player's Gold.
+    public bool CanAffordAnyUnsoldItem(Player player)
+    {
+        for (int i = 0; i < Catalogue.Length; i++)
+        {
+            if (!_sold[i] && player.Gold >= Catalogue[i].Price)
+                return true;
+        }
+
+        return false;
+    }
+
     // The one place a PlayerStat is mapped to a Player property. No fallback: an unsupported stat fails explicitly.
     private static (Func<Player, int> Get, Action<Player, int> Set) StatAccessor(PlayerStat stat) => stat switch
     {
