@@ -50,10 +50,84 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll91DictionaryKeys(string language)
+    public void Language_HasAll97DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(91, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(97, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+    }
+
+    // Troll Encounter keys added by Ticket 02. troll_fight_not_ready is temporary: Ticket 03 removes it.
+    private static readonly string[] TrollEncounterKeys =
+    {
+        "west_path_narrative", "troll_intro", "troll_stats_intro", "troll_stats_header", "troll_retreat",
+        "troll_fight_not_ready"
+    };
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_HasTrollEncounterKeys(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        HashSet<string> keys = KeysOf(LoadSection(doc, language).GetProperty("dictionary"));
+
+        foreach (string key in TrollEncounterKeys)
+            Assert.IsTrue(keys.Contains(key), $"{language} is missing dictionary key '{key}'.");
+    }
+
+    // AC23: Grimtusk's name always comes from {0}, like Smolderfang's and Old Brannoc's.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_TrollName_ComesFromPlaceholder_NeverTypedIntoText(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+
+        foreach (JsonProperty entry in dictionary.EnumerateObject())
+            StringAssert.DoesNotMatch(entry.Value.GetString()!, new Regex("Grimtusk"),
+                $"{language} key '{entry.Name}' types Grimtusk's name instead of using {{0}}.");
+
+        foreach (string key in new[] { "troll_intro", "troll_fight_not_ready" })
+            Assert.AreEqual("{0}", Placeholders(dictionary.GetProperty(key).GetString()!),
+                $"{language} '{key}' must take Grimtusk's name as {{0}}.");
+    }
+
+    // AC22: Grimtusk's club is translated through the existing weapon display map.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_DisplayWeaponMap_HasTheClub(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement weapons = LoadSection(doc, language).GetProperty("displayWeaponMap");
+
+        Assert.IsTrue(weapons.TryGetProperty("club", out JsonElement club), $"{language} is missing 'club'.");
+        Assert.IsFalse(string.IsNullOrWhiteSpace(club.GetString()), $"{language} 'club' is empty.");
+    }
+
+    // AC2: the Crossroads offers West, and the invalid-path message lists every letter.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_CrossroadsText_OffersWest(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+        string prompt = dictionary.GetProperty("path_prompt_full").GetString()!;
+        string invalid = dictionary.GetProperty("path_invalid").GetString()!;
+
+        StringAssert.Contains(prompt, "'w'", $"{language} path_prompt_full doesn't offer 'w'.");
+        foreach (string letter in new[] { "'n'", "'s'", "'w'", "'e'" })
+            StringAssert.Contains(invalid, letter, $"{language} path_invalid doesn't list {letter}.");
     }
 
     private static readonly string[] MerchantKeys =

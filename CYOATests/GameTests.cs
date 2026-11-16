@@ -165,7 +165,7 @@ public class GameTests
     public void IsValidPathChoice_ReturnsFalse_ForInvalidInput()
     {
         Game game = new Game();
-        Assert.IsFalse(game.IsValidPathChoice("west"));
+        Assert.IsFalse(game.IsValidPathChoice("east"));
     }
 
     [TestMethod]
@@ -265,6 +265,32 @@ public class GameTests
     {
         Game game = new Game();
         Assert.IsFalse(game.IsValidPathChoice("3"));
+    }
+
+    // --- IsValidPathChoice: West (Troll Encounter, AC1) ---
+
+    [TestMethod]
+    [DataRow("w")]
+    [DataRow("west")]
+    [DataRow("W")]
+    [DataRow("WEST")]
+    [DataRow(" west ")]
+    [DataRow("  W  ")]
+    public void IsValidPathChoice_ReturnsTrue_ForWest(string input)
+    {
+        Game game = new Game();
+        Assert.IsTrue(game.IsValidPathChoice(input));
+    }
+
+    [TestMethod]
+    [DataRow("we")]
+    [DataRow("wes")]
+    [DataRow("westward")]
+    [DataRow("oeste")]
+    public void IsValidPathChoice_ReturnsFalse_ForNearMissesOfWest(string input)
+    {
+        Game game = new Game();
+        Assert.IsFalse(game.IsValidPathChoice(input));
     }
 
     // --- IsValidCombatChoice ---

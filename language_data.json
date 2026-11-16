@@ -38,8 +38,8 @@
       "stats_weapon": "Weapon: ",
       "stats_damage": "Weapon's Maximum Damage Points: ",
       "adventure_ends": "Adventure ends. Bye.",
-      "path_prompt_full": "You are walking in the mountains. You see two paths, one leading north and higher into the mountains. The other path leads south and into the woods. Which do you take? Enter 'n' for North. Enter 's' for South. Enter 'e' for exit game.",
-      "path_invalid": "Invalid choice. Please enter 'n', 's', or 'e'.",
+      "path_prompt_full": "You are walking in the mountains. You see three paths: one leading north and higher into the mountains, one leading south into the woods, and one leading west toward a narrow mountain pass. Which do you take? Enter 'n' for North. Enter 's' for South. Enter 'w' for West. Enter 'e' for exit game.",
+      "path_invalid": "Invalid choice. Please enter 'n', 's', 'w', or 'e'.",
       "south_path_narrative": "You take the South path. The forest road winds on for hours until you spot a creaking wagon at the roadside. A travelling merchant beckons you over to see what is for sale.",
       "north_path_narrative": "You take the North path. After walking for hours, the air grows colder, and the trees become more sparse. You are confronted with a dragon. The dragon has a hoard of gold behind it.",
       "dragon_intro": "The dragon says 'I am {0}. Leave or perish!'",
@@ -91,7 +91,13 @@
       "merchant_already_sold": "You have already bought the {0}. Choose something else.",
       "merchant_not_enough_gold": "You need {0} Gold but have only {1}.",
       "merchant_nothing_affordable": "There is nothing left on the wagon that your Gold can buy.",
-      "merchant_moved_on": "The crossroads to the South is empty. {0} has packed up his wagon and moved on."
+      "merchant_moved_on": "The crossroads to the South is empty. {0} has packed up his wagon and moved on.",
+      "west_path_narrative": "You take the West path. The trail climbs between grey cliffs to a narrow mountain pass, where a huge shape rises from a cave mouth and blocks the way.",
+      "troll_intro": "The troll growls 'I am {0}. Nobody crosses my pass!'",
+      "troll_stats_intro": "Your magic ring gives you the stats on the troll.",
+      "troll_stats_header": "----- Troll Stats -----",
+      "troll_retreat": "You back away down the trail and return to the crossroads.",
+      "troll_fight_not_ready": "Fighting {0} isn't available in this version yet. Enter 'r' to retreat."
     },
     "raceMap": {
       "human": "Human",
@@ -122,7 +128,8 @@
       "lightning bolt spell": "lightning bolt spell",
       "dagger": "dagger",
       "long bow": "long bow",
-      "claws": "claws"
+      "claws": "claws",
+      "club": "club"
     }
   },
   "Spanish": {
@@ -164,8 +171,8 @@
       "stats_weapon": "Arma: ",
       "stats_damage": "Puntos Maximos de Dano del Arma: ",
       "adventure_ends": "La aventura termina. Adios.",
-      "path_prompt_full": "Estas caminando en las montanas. Ves dos caminos, uno va al norte y mas arriba en las montanas. El otro va al sur y hacia el bosque. Cual tomas? Escribe 'n' para Norte. Escribe 's' para Sur. Escribe 'e' para salir del juego.",
-      "path_invalid": "Opcion invalida. Por favor escribe 'n', 's' o 'e'.",
+      "path_prompt_full": "Estas caminando en las montanas. Ves tres caminos: uno va al norte y mas arriba en las montanas, otro va al sur y hacia el bosque, y otro va al oeste hacia un estrecho paso de montana. Cual tomas? Escribe 'n' para Norte. Escribe 's' para Sur. Escribe 'w' para Oeste. Escribe 'e' para salir del juego.",
+      "path_invalid": "Opcion invalida. Por favor escribe 'n', 's', 'w' o 'e'.",
       "south_path_narrative": "Tomas el camino del sur. El sendero del bosque serpentea durante horas hasta que ves una carreta junto al camino. Un mercader ambulante te hace senas para que veas lo que vende.",
       "north_path_narrative": "Tomas el camino del norte. Despues de caminar durante horas, el aire se vuelve mas frio y los arboles mas escasos. Te enfrentas a un dragon. El dragon tiene una horda de oro detras de el.",
       "dragon_intro": "El dragon dice 'Soy {0}. Vete o perece!'",
@@ -217,7 +224,13 @@
       "merchant_already_sold": "Ya compraste esto: {0}. Elige otra cosa.",
       "merchant_not_enough_gold": "Necesitas {0} de Oro, pero solo tienes {1}.",
       "merchant_nothing_affordable": "No queda nada en la carreta que puedas comprar con tu Oro.",
-      "merchant_moved_on": "El cruce del sur esta vacio. {0} ha recogido su carreta y se ha marchado."
+      "merchant_moved_on": "El cruce del sur esta vacio. {0} ha recogido su carreta y se ha marchado.",
+      "west_path_narrative": "Tomas el camino del oeste. El sendero sube entre acantilados grises hasta un estrecho paso de montana, donde una enorme figura surge de la boca de una cueva y bloquea el camino.",
+      "troll_intro": "El trol grune 'Soy {0}. Nadie cruza mi paso!'",
+      "troll_stats_intro": "Tu anillo magico te da las estadisticas del trol.",
+      "troll_stats_header": "----- Estadisticas del Trol -----",
+      "troll_retreat": "Retrocedes por el sendero y regresas al cruce.",
+      "troll_fight_not_ready": "Luchar contra {0} todavia no esta disponible en esta version. Escribe 'r' para retirarte."
     },
     "raceMap": {
       "humano": "Human",
@@ -248,7 +261,8 @@
       "lightning bolt spell": "hechizo de rayo",
       "dagger": "daga",
       "long bow": "arco largo",
-      "claws": "garras"
+      "claws": "garras",
+      "club": "garrote"
     }
   },
   "French": {
@@ -290,8 +304,8 @@
       "stats_weapon": "Arme: ",
       "stats_damage": "Points de Dommages Maximum: ",
       "adventure_ends": "L'aventure se termine. Au revoir.",
-      "path_prompt_full": "Vous marchez dans les montagnes. Vous voyez deux chemins, l'un mene vers le nord et plus haut dans les montagnes. L'autre mene vers le sud et dans les bois. Lequel choisissez-vous ? Tapez 'n' pour Nord. Tapez 's' pour Sud. Tapez 'e' pour quitter le jeu.",
-      "path_invalid": "Choix invalide. Veuillez taper 'n', 's' ou 'e'.",
+      "path_prompt_full": "Vous marchez dans les montagnes. Vous voyez trois chemins : l'un mene vers le nord et plus haut dans les montagnes, un autre mene vers le sud et dans les bois, et le dernier mene vers l'ouest jusqu'a un col etroit. Lequel choisissez-vous ? Tapez 'n' pour Nord. Tapez 's' pour Sud. Tapez 'w' pour Ouest. Tapez 'e' pour quitter le jeu.",
+      "path_invalid": "Choix invalide. Veuillez taper 'n', 's', 'w' ou 'e'.",
       "south_path_narrative": "Vous prenez le chemin du sud. La route forestiere serpente pendant des heures jusqu'a ce que vous aperceviez une charrette au bord du chemin. Un marchand ambulant vous fait signe de venir voir ce qui est a vendre.",
       "north_path_narrative": "Vous prenez le chemin du nord. Apres avoir marche pendant des heures, l'air devient plus froid et les arbres plus rares. Vous etes confronte a un dragon. Le dragon a un tresor d'or derriere lui.",
       "dragon_intro": "Le dragon dit 'Je suis {0}. Pars ou peris !'",
@@ -343,7 +357,13 @@
       "merchant_already_sold": "Vous avez deja achete cet objet : {0}. Choisissez autre chose.",
       "merchant_not_enough_gold": "Il vous faut {0} Or, mais vous n'en avez que {1}.",
       "merchant_nothing_affordable": "Il ne reste rien sur la charrette que votre Or puisse acheter.",
-      "merchant_moved_on": "Le carrefour du sud est desert. {0} a remballe sa charrette et est reparti."
+      "merchant_moved_on": "Le carrefour du sud est desert. {0} a remballe sa charrette et est reparti.",
+      "west_path_narrative": "Vous prenez le chemin de l'ouest. Le sentier grimpe entre des falaises grises jusqu'a un col etroit, ou une enorme silhouette surgit de l'entree d'une grotte et bloque le passage.",
+      "troll_intro": "Le troll grogne 'Je suis {0}. Personne ne franchit mon col !'",
+      "troll_stats_intro": "Votre anneau magique vous donne les statistiques du troll.",
+      "troll_stats_header": "----- Statistiques du Troll -----",
+      "troll_retreat": "Vous reculez sur le sentier et retournez au carrefour.",
+      "troll_fight_not_ready": "Combattre {0} n'est pas encore disponible dans cette version. Tapez 'r' pour battre en retraite."
     },
     "raceMap": {
       "humain": "Human",
@@ -374,7 +394,8 @@
       "lightning bolt spell": "sort d'eclair",
       "dagger": "dague",
       "long bow": "arc long",
-      "claws": "griffes"
+      "claws": "griffes",
+      "club": "massue"
     }
   },
   "Italian": {
@@ -416,8 +437,8 @@
       "stats_weapon": "Arma: ",
       "stats_damage": "Danno Massimo dell'Arma: ",
       "adventure_ends": "L'avventura finisce. Arrivederci.",
-      "path_prompt_full": "Stai camminando tra le montagne. Vedi due sentieri: uno porta a nord, più in alto tra le montagne. L'altro porta a sud, dentro il bosco. Quale prendi? Digita 'n' per Nord. Digita 's' per Sud. Digita 'e' per uscire dal gioco.",
-      "path_invalid": "Scelta non valida. Digita 'n', 's' o 'e'.",
+      "path_prompt_full": "Stai camminando tra le montagne. Vedi tre sentieri: uno porta a nord, più in alto tra le montagne; uno porta a sud, dentro il bosco; e uno porta a ovest, verso uno stretto passo di montagna. Quale prendi? Digita 'n' per Nord. Digita 's' per Sud. Digita 'w' per Ovest. Digita 'e' per uscire dal gioco.",
+      "path_invalid": "Scelta non valida. Digita 'n', 's', 'w' o 'e'.",
       "south_path_narrative": "Prendi il sentiero a sud. La strada del bosco serpeggia per ore finché non scorgi un carretto sul ciglio della strada. Un mercante ambulante ti fa cenno di avvicinarti a vedere cosa vende.",
       "north_path_narrative": "Prendi il sentiero a nord. Dopo ore di cammino, l'aria si fa più fredda e gli alberi si diradano. Ti trovi di fronte a un drago. Il drago ha un tesoro d'oro alle sue spalle.",
       "dragon_intro": "Il drago dice: 'Io sono {0}. Vattene o perisci!'",
@@ -469,7 +490,13 @@
       "merchant_already_sold": "Hai già comprato questo oggetto: {0}. Scegli qualcos'altro.",
       "merchant_not_enough_gold": "Ti servono {0} Oro, ma ne hai solo {1}.",
       "merchant_nothing_affordable": "Non c'è più nulla sul carretto che tu possa comprare con il tuo oro.",
-      "merchant_moved_on": "Il bivio a sud è deserto. {0} ha caricato il suo carretto e se n'è andato."
+      "merchant_moved_on": "Il bivio a sud è deserto. {0} ha caricato il suo carretto e se n'è andato.",
+      "west_path_narrative": "Prendi il sentiero a ovest. La pista sale tra scogliere grigie fino a uno stretto passo di montagna, dove un'enorme sagoma emerge dall'imboccatura di una grotta e sbarra la strada.",
+      "troll_intro": "Il troll ringhia: 'Io sono {0}. Nessuno attraversa il mio passo!'",
+      "troll_stats_intro": "Il tuo anello magico ti rivela le statistiche del troll.",
+      "troll_stats_header": "----- Statistiche del Troll -----",
+      "troll_retreat": "Indietreggi lungo il sentiero e torni al bivio.",
+      "troll_fight_not_ready": "Combattere contro {0} non è ancora disponibile in questa versione. Digita 'r' per ritirarti."
     },
     "raceMap": {
       "umano": "Human",
@@ -500,7 +527,8 @@
       "lightning bolt spell": "incantesimo del fulmine",
       "dagger": "pugnale",
       "long bow": "arco lungo",
-      "claws": "artigli"
+      "claws": "artigli",
+      "club": "clava"
     }
   }
 }

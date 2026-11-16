@@ -1,3 +1,6 @@
+// How a Troll Encounter ended.
+public enum TrollEncounterOutcome { Retreat }
+
 public class Game
 {
     public void StartGame()
@@ -41,6 +44,7 @@ public class Game
                 Player player = new Player();
                 player.CreateCharacter(messages);
                 Merchant merchant = new Merchant();
+                Troll troll = new Troll(die);
 
                 bool inAdventureMenu = true;
                 while (inAdventureMenu)
@@ -56,6 +60,11 @@ public class Game
                     else if (selectedPath == "south")
                     {
                         HandleMerchantEncounter(player, merchant, messages);
+                    }
+                    else if (selectedPath == "west")
+                    {
+                        // Every Troll Encounter outcome in this ticket is a retreat, back to the Crossroads.
+                        HandleTrollEncounter(player, troll, messages);
                     }
                     else if (selectedPath == "north")
                     {
@@ -112,6 +121,7 @@ public class Game
         string trimmed = input.Trim().ToLower();
         return trimmed == "n" || trimmed == "north" ||
                trimmed == "s" || trimmed == "south" ||
+               trimmed == "w" || trimmed == "west" ||
                trimmed == "e" || trimmed == "exit";
     }
 
@@ -136,6 +146,9 @@ public class Game
 
             if (input == "south" || input == "s")
                 return "south";
+
+            if (input == "west" || input == "w")
+                return "west";
 
             if (input == "exit" || input == "e")
                 return "exit";
@@ -249,6 +262,39 @@ public class Game
         }
 
         Console.WriteLine($"{merchant.LeaveOption}. " + messages.GetMessage("merchant_leave"));
+    }
+
+    public TrollEncounterOutcome HandleTrollEncounter(Player player, Troll troll, Messages messages)
+    {
+        Console.WriteLine(messages.GetMessage("west_path_narrative"));
+        Console.WriteLine(string.Format(messages.GetMessage("troll_intro"), troll.Name));
+        Console.WriteLine(messages.GetMessage("troll_stats_intro"));
+        troll.DisplayStats(messages);
+
+        while (true)
+        {
+            Console.WriteLine(messages.GetMessage("dragon_encounter_prompt"));
+            Console.Write(messages.GetMessage("enter_choice"));
+            string? input = Console.ReadLine()?.Trim().ToLower();
+
+            // End of input (null) also retreats, so this prompt can never loop forever. This is local to the
+            // Troll Encounter: the Crossroads still loops on end of input (spec Known Limitation L1).
+            if (input == "r" || input == "retreat" || input == null)
+            {
+                Console.WriteLine(messages.GetMessage("troll_retreat"));
+                return TrollEncounterOutcome.Retreat;
+            }
+
+            // TEMPORARY (Ticket 02 only): combat with Grimtusk arrives in Ticket 03, which removes this
+            // notice and its troll_fight_not_ready key. Attack is a valid choice, so it isn't called invalid.
+            if (input == "a" || input == "attack")
+            {
+                Console.WriteLine(string.Format(messages.GetMessage("troll_fight_not_ready"), troll.Name));
+                continue;
+            }
+
+            Console.WriteLine(messages.GetMessage("invalid"));
+        }
     }
 
     private void HandleDragonEncounter(Player player, Dragon dragon, Messages messages)
