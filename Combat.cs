@@ -1,15 +1,15 @@
 public class Combat
 {
     public Player player { get; set; }
-    public Dragon dragon { get; set; }
+    public Monster monster { get; set; }
     public Messages messages { get; set; }
 
     public bool PlayerRetreated { get; private set; }
 
-    public Combat(Player player, Dragon dragon, Messages messages)
+    public Combat(Player player, Monster monster, Messages messages)
     {
         this.player = player;
-        this.dragon = dragon;
+        this.monster = monster;
         this.messages = messages;
         PlayerRetreated = false;
     }
@@ -22,7 +22,7 @@ public class Combat
         {
             PlayerAttacksDragonSequence();
 
-            if (dragon.HealthPoints <= 0)
+            if (monster.HealthPoints <= 0)
                 return true;
 
             DragonAttacksPlayerSequence();
@@ -65,24 +65,24 @@ public class Combat
         }
 
         output.Add("");
-        output.Add(messages.GetMessage("combat_dragon_header"));
-        output.Add(messages.GetMessage("stats_name") + dragon.Name);
-        output.Add(messages.GetMessage("stats_strength") + dragon.Strength);
-        output.Add(messages.GetMessage("stats_agility") + dragon.Agility);
-        output.Add(messages.GetMessage("stats_health") + dragon.HealthPoints);
-        output.Add(messages.GetMessage("stats_weapon") + messages.TranslateWeaponForDisplay(dragon.Weapon.Type));
-        output.Add(messages.GetMessage("stats_damage") + dragon.Weapon.MaxDamage);
+        output.Add(monster.GetCombatHeader(messages));
+        output.Add(messages.GetMessage("stats_name") + monster.Name);
+        output.Add(messages.GetMessage("stats_strength") + monster.Strength);
+        output.Add(messages.GetMessage("stats_agility") + monster.Agility);
+        output.Add(messages.GetMessage("stats_health") + monster.HealthPoints);
+        output.Add(messages.GetMessage("stats_weapon") + messages.TranslateWeaponForDisplay(monster.Weapon.Type));
+        output.Add(messages.GetMessage("stats_damage") + monster.Weapon.MaxDamage);
 
         return string.Join(Environment.NewLine, output);
     }
 
     public void PlayerAttacksDragonSequence()
     {
-        Console.WriteLine(player.Attack(dragon, messages));
+        Console.WriteLine(player.Attack(monster, messages));
     }
 
     public void DragonAttacksPlayerSequence()
     {
-        Console.WriteLine(dragon.Attack(player, messages));
+        Console.WriteLine(monster.Attack(player, messages));
     }
 }

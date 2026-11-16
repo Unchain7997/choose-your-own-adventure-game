@@ -126,6 +126,82 @@ public class DragonTests
 
         Assert.IsTrue(player.HealthPoints >= 0);
     }
+
+    // R3: the Dragon is one kind of Monster.
+    [TestMethod]
+    public void Dragon_IsAMonster()
+    {
+        Assert.IsInstanceOfType<Monster>(new Dragon(new Die()));
+    }
+
+    // The player's attack on the dragon, pinned down before combat is generalised to any Monster.
+    // Extreme stats make each result certain: a d20 roll of 1-20 always hits Strength 20 and never
+    // hits Strength 0; Agility 0 never blocks and Agility 20 always does; damage is always at least 1.
+    private static Player AttackingPlayer(int strength) => new Player
+    {
+        Name = "TestHero",
+        Race = "Human",
+        Occupation = "Fighter",
+        Strength = strength,
+        Weapon = new Weapon("long sword", 12, "-)=====>")
+    };
+
+    private static Dragon DefendingDragon(int agility, int healthPoints)
+    {
+        Dragon dragon = new Dragon(new Die());
+        dragon.Agility = agility;
+        dragon.HealthPoints = healthPoints;
+        return dragon;
+    }
+
+    private static string[] AllFourFormatted(Messages messages, string keyPrefix, string race) =>
+        Enumerable.Range(1, 4)
+            .Select(n => string.Format(messages.GetMessage($"{keyPrefix}_{n}"), race))
+            .ToArray();
+
+    [TestMethod]
+    public void PlayerAttack_OnDragon_ShowsTheDragonAttackIntro()
+    {
+        Messages messages = GetMessages();
+
+        string output = AttackingPlayer(strength: 0).Attack(DefendingDragon(agility: 0, healthPoints: 10), messages);
+
+        StringAssert.Contains(output, string.Format(messages.GetMessage("player_attack_intro"), "Fighter", "long sword"));
+    }
+
+    [TestMethod]
+    public void PlayerAttack_KillingBlowOnDragon_ShowsDragonDefeatedNarrative()
+    {
+        Messages messages = GetMessages();
+
+        string output = AttackingPlayer(strength: 20).Attack(DefendingDragon(agility: 0, healthPoints: 1), messages);
+
+        StringAssert.Contains(output, messages.GetMessage("dragon_defeated_narrative"));
+    }
+
+    [TestMethod]
+    public void PlayerAttack_BlockedByDragon_ShowsOneOfTheDragonsTaunts()
+    {
+        Messages messages = GetMessages();
+
+        string output = AttackingPlayer(strength: 20).Attack(DefendingDragon(agility: 20, healthPoints: 10), messages);
+
+        string[] lines = output.Split(Environment.NewLine);
+        Assert.IsTrue(AllFourFormatted(messages, "dragon_defense_taunt", "Human").Any(lines.Contains),
+            $"Expected one of the dragon's taunts in:\n{output}");
+    }
+
+    [TestMethod]
+    public void PlayerAttack_HitThatDoesNotKillDragon_ShowsOneOfTheDragonsDamageReplies()
+    {
+        Messages messages = GetMessages();
+
+        string output = AttackingPlayer(strength: 20).Attack(DefendingDragon(agility: 0, healthPoints: 100), messages);
+
+        string[] lines = output.Split(Environment.NewLine);
+        Assert.IsTrue(AllFourFormatted(messages, "dragon_damage_reply", "Human").Any(lines.Contains),
+            $"Expected one of the dragon's damage replies in:\n{output}");
+    }
 }
 
 [TestClass]

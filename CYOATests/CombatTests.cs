@@ -47,7 +47,7 @@ public class CombatTests
         Combat combat = new Combat(player, dragon, messages);
 
         Assert.AreSame(player, combat.player);
-        Assert.AreSame(dragon, combat.dragon);
+        Assert.AreSame(dragon, combat.monster);
     }
 
     [TestMethod]

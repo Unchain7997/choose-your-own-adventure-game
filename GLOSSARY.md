@@ -4,22 +4,36 @@ A console adventure in which a player creates a character, picks a path through 
 
 ## Encounters
 
+**Crossroads**:
+The spot in the mountains where the player chooses a path or leaves the game, and where every path that doesn't end the adventure leads back to.
+_Avoid_: Path prompt, path choice, path menu
+
 **Dragon Encounter**:
 The scene at the end of the North path where the player meets the dragon and chooses to attack or retreat.
 _Avoid_: Boss fight, dragon battle
+
+**Troll Encounter**:
+The scene on the West path where the player meets Grimtusk, a cave troll guarding a mountain pass, and chooses to attack or retreat.
+_Avoid_: Monster Encounter, troll fight
 
 **Merchant**:
 Old Brannoc, the travelling seller the player meets on the South path. His name is the same in every language.
 _Avoid_: Trader, shopkeeper, vendor, shop
 
 **Merchant Encounter**:
-The one-time scene on the South path where the player meets the Merchant, may buy Items with Gold, and then returns to the path choice.
+The one-time scene on the South path where the player meets the Merchant, may buy Items with Gold, and then returns to the Crossroads.
 _Avoid_: Shop, store, shopping
+
+## Monsters
+
+**Monster**:
+Any creature the player fights. Smolderfang the dragon and Grimtusk the cave troll are both Monsters, and each keeps the same name in every language.
+_Avoid_: Enemy, opponent, foe, mob
 
 ## Character
 
 **Gold**:
-The player's money, rolled when the character is created and spent only with the Merchant.
+The player's money, rolled when the character is created, added to from Grimtusk's stash, and spent only with the Merchant.
 _Avoid_: Coins, money, currency
 
 ## Items
