@@ -254,7 +254,7 @@
       "troll_damage_reply_3": "Golpe de suerte! No volvera a pasar!",
       "troll_damage_reply_4": "Hmpf. Eres mas fuerte de lo que pareces.",
       "troll_defeated_narrative": "Con un ultimo gemido, el trol se desploma en el suelo. El paso es tuyo.",
-      "troll_victory": "Registras la cueva de {0} y encuentras {1} de Oro en su escondite. Ahora tienes {2} de Oro. Regresas al cruce.",
+      "troll_victory": "Registras la cueva de {0} y encuentras {1} monedas de oro en su escondite. Ahora tienes {2} monedas de oro. Regresas al cruce.",
       "troll_defeat": "{0} ruge triunfante mientras todo se oscurece. Has sido derrotado. Tu familia llora tu perdida. Fin.",
       "troll_pass_clear": "El paso de montana esta en calma. {0} yace derrotado y nada bloquea el camino."
     },
@@ -536,7 +536,7 @@
       "troll_stats_header": "----- Statistiche del Troll -----",
       "troll_retreat": "Indietreggi lungo il sentiero e torni al bivio.",
       "combat_troll_header": "--- Troll ---",
-      "troll_player_attack_intro": "{0}, sfoderi la tua arma ({1}) e attacchi il troll.",
+      "troll_player_attack_intro": "Come {0}, estrai la tua arma ({1}) e attacchi il troll.",
       "troll_defense_taunt_1": "Ah! Mia nonna colpisce più veloce di così!",
       "troll_defense_taunt_2": "Mi fai il solletico alle verruche, {0}!",
       "troll_defense_taunt_3": "I sassi colpiscono più forte di te!",

@@ -566,4 +566,106 @@ public class TrollEncounterTests
             messages.GetMessage("stats_health") + secondAdventure.HealthPoints,
             messages.GetMessage("troll_retreat"));
     }
+
+    // --- Ticket 04: Grimtusk's results carry through the adventure ---
+
+    private static string RunMerchantEncounter(string input, Player player, Merchant merchant, Messages messages)
+    {
+        Console.SetIn(new StringReader(input));
+        using StringWriter writer = new StringWriter();
+        Console.SetOut(writer);
+
+        new Game().HandleMerchantEncounter(player, merchant, messages);
+
+        return writer.ToString();
+    }
+
+    // AC20: Gold from Grimtusk's stash is ordinary Gold that Old Brannoc accepts. The player starts with 4 Gold,
+    // below the cheapest Item (Healing Potion, 5), so only the troll's d10 (1-10) can make the purchase possible.
+    [TestMethod]
+    public void TrollGold_CanBeSpentAtTheMerchant()
+    {
+        Messages messages = GetMessages();
+        (Player player, Troll troll) = VictoryFixture();
+        player.Gold = 4;
+        Merchant merchant = new Merchant();
+        Assert.IsFalse(merchant.CanAffordAnyUnsoldItem(player), "Fixture: nothing is affordable before the reward");
+
+        RunEncounter("a\n", player, troll, messages);
+        int goldAfterVictory = player.Gold;
+        int healthAfterVictory = player.HealthPoints;
+        Assert.IsTrue(goldAfterVictory is >= 5 and <= 14, $"Gold after the reward {goldAfterVictory}");
+
+        string output = RunMerchantEncounter("1\n4\n", player, merchant, messages);
+
+        Assert.AreEqual(goldAfterVictory - 5, player.Gold, "The Healing Potion costs 5 Gold");
+        Assert.AreEqual(healthAfterVictory + 6, player.HealthPoints, "The Healing Potion adds 6 HealthPoints");
+        StringAssert.Contains(output, string.Format(Known(messages, "merchant_purchased"),
+            messages.GetMessage("item_healing_potion"), messages.GetMessage("stat_name_health"),
+            healthAfterVictory + 6, goldAfterVictory - 5));
+    }
+
+    // AC16 / R17: HealthPoints lost to Grimtusk are the ones the player brings to the dragon. Nothing heals them.
+    // Grimtusk (Strength 20) always hits an Agility-0 player, who has 100 HealthPoints so survives and retreats.
+    [TestMethod]
+    public void TrollInjuries_CarryIntoTheDragonEncounter_WithoutHealing()
+    {
+        Messages messages = GetMessages();
+        Player player = NewPlayer();
+        player.Strength = 0;
+        player.Agility = 0;
+        player.HealthPoints = 100;
+        Troll troll = new Troll(new Die()) { Strength = 20 };
+
+        RunEncounter("a\nr\n", player, troll, messages);
+        int injured = player.HealthPoints;
+        Assert.IsTrue(injured is >= 92 and < 100, $"Player HealthPoints after the troll {injured}");
+
+        Dragon dragon = new Dragon(new Die()) { Strength = 20 };
+        string display = new Combat(player, dragon, messages).GetCombatStatsDisplay();
+
+        // The player's block of the combat stats (before the dragon's header) shows the injured value.
+        string playerBlock = display.Substring(0, display.IndexOf(messages.GetMessage("combat_dragon_header"), StringComparison.Ordinal));
+        StringAssert.Contains(playerBlock, messages.GetMessage("stats_health") + injured);
+
+        // The dragon's attack starts from that value: Strength 20 always hits, Agility 0 never blocks, claws do 1-12.
+        dragon.Attack(player, messages);
+        Assert.IsTrue(player.HealthPoints >= injured - 12 && player.HealthPoints < injured,
+            $"Expected 1-12 damage from {injured}, got {player.HealthPoints}");
+    }
+
+    // AC24: a full Troll Encounter victory in each language, from the West-path narrative to the reward,
+    // then the clear-pass line on the next visit. string.Format would throw on a malformed placeholder.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void FullVictoryRun_PrintsThatLanguagesMessages(string language)
+    {
+        Messages messages = GetMessages(language);
+        (Player player, Troll troll) = VictoryFixture();
+        int goldBefore = player.Gold;
+
+        (string output, TrollEncounterOutcome outcome) = RunEncounter("a\n", player, troll, messages);
+        int found = player.Gold - goldBefore;
+
+        AssertInOrder(output,
+            Known(messages, "west_path_narrative"),
+            string.Format(Known(messages, "troll_intro"), troll.Name),
+            Known(messages, "troll_stats_intro"),
+            Known(messages, "troll_stats_header"),
+            messages.GetMessage("stats_weapon") + messages.TranslateWeaponForDisplay("club"),
+            Known(messages, "dragon_encounter_prompt"),
+            Known(messages, "combat_troll_header"),
+            string.Format(Known(messages, "troll_player_attack_intro"),
+                messages.TranslateOccupationForDisplay("Fighter"), messages.TranslateWeaponForDisplay("long sword")),
+            Known(messages, "troll_defeated_narrative"),
+            string.Format(Known(messages, "troll_victory"), troll.Name, found, player.Gold));
+        Assert.AreEqual(TrollEncounterOutcome.Victory, outcome);
+        AssertNoMissingMessages(output);
+
+        (string revisit, _) = RunEncounter("", player, troll, messages);
+        Assert.AreEqual(string.Format(Known(messages, "troll_pass_clear"), troll.Name) + Environment.NewLine, revisit);
+    }
 }
