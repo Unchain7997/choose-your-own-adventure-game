@@ -1,6 +1,6 @@
 # Spec: One attack-resolution module
 
-Status: ready-for-agent
+Status: resolved
 
 Feature slug: `attack-resolution`
 Branch: `refactor/attack-resolution` (from `feature/difficulty-setting` at `1e65e1f`)

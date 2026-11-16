@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Spec: `.scratch/attack-resolution/spec.md` (R1–R12; AC1–AC12; Testing Decisions Seams 1 and 2; Known Limitations L1–L3)
 
