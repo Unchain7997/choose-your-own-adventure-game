@@ -55,7 +55,7 @@ public abstract class Monster
 
     public bool AttackHits(int attackRoll)
     {
-        return attackRoll <= Strength;
+        return AttackResolution.Hits(attackRoll, Strength);
     }
 
     public int RollDamage()
@@ -77,9 +77,10 @@ public abstract class Monster
         if (!string.IsNullOrWhiteSpace(Weapon.AsciiArt))
             output.Add(Weapon.AsciiArt);
 
-        int attackRoll = RollAttack();
+        // The Attack rules (hit, block, damage rolls) are shared with the player's Attack.
+        AttackResult result = AttackResolution.Resolve(_die, Strength, player.Agility, Weapon.MaxDamage);
 
-        if (!AttackHits(attackRoll))
+        if (result.Outcome == AttackOutcome.Miss)
         {
             output.Add(string.Format(messages.GetMessage("dragon_missed_player"), Name, player.Name));
             return string.Join(Environment.NewLine, output);
@@ -87,15 +88,13 @@ public abstract class Monster
 
         output.Add(string.Format(messages.GetMessage("dragon_hit_player"), Name, player.Name));
 
-        int defenseRoll = _die.Roll(20);
-
-        if (defenseRoll <= player.Agility)
+        if (result.Outcome == AttackOutcome.Blocked)
         {
             output.Add(string.Format(messages.GetMessage("player_defended_dragon_attack"), player.Name));
             return string.Join(Environment.NewLine, output);
         }
 
-        int damage = RollDamage();
+        int damage = result.Damage;
         player.HealthPoints -= damage;
 
         if (player.HealthPoints < 0)

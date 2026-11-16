@@ -182,7 +182,7 @@ public class Player
 
     public bool AttackHits(int attackRoll)
     {
-        return attackRoll <= Strength;
+        return AttackResolution.Hits(attackRoll, Strength);
     }
 
     public int RollDamage()
@@ -209,10 +209,11 @@ public class Player
         // If this fails to compile, change AsciiArt to whatever exists in Weapon.cs
         output.Add(Weapon.AsciiArt);
 
-        int attackRoll = RollAttack();
+        // The Attack rules (hit, block, damage rolls) are shared with every Monster's Attack.
+        AttackResult result = AttackResolution.Resolve(_die, Strength, monster.Agility, Weapon.MaxDamage);
 
         // MISS
-        if (!AttackHits(attackRoll))
+        if (result.Outcome == AttackOutcome.Miss)
         {
             output.Add(string.Format(messages.GetMessage("player_missed_dragon"), monster.Name));
             return string.Join(Environment.NewLine, output);
@@ -220,10 +221,8 @@ public class Player
 
         output.Add(string.Format(messages.GetMessage("player_hit_dragon"), monster.Name));
 
-        int defenseRoll = _die.Roll(20);
-
         // DEFENSE
-        if (defenseRoll <= monster.Agility)
+        if (result.Outcome == AttackOutcome.Blocked)
         {
             output.Add(string.Format(messages.GetMessage("dragon_defended_player_attack"), monster.Name));
             output.Add(string.Format(
@@ -233,8 +232,8 @@ public class Player
             return string.Join(Environment.NewLine, output);
         }
 
-        // DAMAGE
-        int damage = RollDamage();
+        // DAMAGE (no clamp: a Monster's HealthPoints can show negative after a killing blow)
+        int damage = result.Damage;
         monster.HealthPoints -= damage;
 
         output.Add(string.Format(messages.GetMessage("player_damage_dealt"), damage));

@@ -36,6 +36,12 @@ _Avoid_: Level, mode, game mode, challenge rating
 Any creature the player fights. Smolderfang the dragon and Grimtusk the cave troll are both Monsters, and each keeps the same name in every language.
 _Avoid_: Enemy, opponent, foe, mob
 
+## Combat
+
+**Attack**:
+One strike in combat, by the player or a Monster: a hit roll against the attacker's Strength, a block roll against the defender's Agility, then a damage roll with the attacker's weapon.
+_Avoid_: Swing, turn, round (a round is the player's Attack plus the Monster's)
+
 ## Character
 
 **Gold**:
