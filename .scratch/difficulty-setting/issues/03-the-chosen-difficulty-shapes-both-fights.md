@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 (Monsters respond to Difficulty), 02 (Choose a difficulty when creating a character)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Spec: `.scratch/difficulty-setting/spec.md` (R8, R10, R12, R14, R17, R20; AC1 order, AC4, AC5, AC6, AC8, AC10–AC13; Seam 5; the "FixedDie is dependency injection, not seeding" decision)
 

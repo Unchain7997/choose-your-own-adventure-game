@@ -1,6 +1,6 @@
 # Spec: Difficulty Setting
 
-Status: ready-for-agent
+Status: resolved
 
 Feature slug: `difficulty-setting`
 Branch: `feature/difficulty-setting` (from `feature/monster-encounter` at `8217a67`)
