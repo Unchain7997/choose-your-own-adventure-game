@@ -110,6 +110,54 @@ public class PlayerTests
         StringAssert.Contains(output.ToString(), expectedLabel + "13");
     }
 
+    // Difficulty spec R18: a new Player plays on Normal until a Difficulty is chosen.
+    [TestMethod]
+    public void NewPlayer_DifficultyIsNormal()
+    {
+        Assert.AreEqual(Difficulty.Normal, new Player().Difficulty);
+    }
+
+    // Difficulty spec AC7: the translated Difficulty line comes immediately after Gold and
+    // immediately before Weapon when a weapon is shown.
+    [TestMethod]
+    [DataRow("English", Difficulty.Easy, "difficulty_easy")]
+    [DataRow("English", Difficulty.Normal, "difficulty_normal")]
+    [DataRow("English", Difficulty.Hard, "difficulty_hard")]
+    [DataRow("Spanish", Difficulty.Hard, "difficulty_hard")]
+    [DataRow("French", Difficulty.Easy, "difficulty_easy")]
+    [DataRow("Italian", Difficulty.Normal, "difficulty_normal")]
+    public void DisplayStats_ShowsDifficultyRightAfterGold_BeforeWeapon(string language, Difficulty difficulty, string nameKey)
+    {
+        Messages messages = CreateMessages(language);
+        Player player = new Player
+        {
+            Name = "Hero", Race = "Human", Occupation = "Fighter", Gold = 13,
+            Weapon = new Weapon("long sword", 12, "-)=====>"),
+            Difficulty = difficulty
+        };
+        StringWriter output = new StringWriter();
+        Console.SetOut(output);
+
+        player.DisplayStats(messages);
+
+        List<string> lines = output.ToString().Split(Environment.NewLine).ToList();
+        int gold = lines.IndexOf(messages.GetMessage("stats_gold") + 13);
+        Assert.IsTrue(gold >= 0, "Gold line not found.");
+        Assert.AreEqual(messages.GetMessage("stats_difficulty") + messages.GetMessage(nameKey), lines[gold + 1]);
+        Assert.AreEqual(messages.GetMessage("stats_weapon") + messages.TranslateWeaponForDisplay("long sword"), lines[gold + 2]);
+    }
+
+    // An unknown Difficulty is rejected, never shown as Normal or as a "[key]" placeholder.
+    [TestMethod]
+    public void DisplayStats_UnknownDifficulty_IsRejected()
+    {
+        Messages messages = CreateMessages("English");
+        Player player = new Player { Name = "Hero", Race = "Human", Occupation = "Fighter", Difficulty = (Difficulty)99 };
+        Console.SetOut(new StringWriter());
+
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => player.DisplayStats(messages));
+    }
+
     // AC14: the Strength Tonic's +4 reaches combat through AttackHits, with no combat code change.
     [TestMethod]
     public void AfterBuyingStrengthTonic_RollEqualToNewStrength_NowHits()

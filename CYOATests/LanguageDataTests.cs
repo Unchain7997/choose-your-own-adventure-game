@@ -50,10 +50,36 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll110DictionaryKeys(string language)
+    public void Language_HasAll116DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(110, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(116, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+    }
+
+    // The 6 Difficulty keys (Difficulty spec, Message Catalogue).
+    private static readonly string[] DifficultyKeys =
+    {
+        "difficulty_prompt", "difficulty_auto_normal", "stats_difficulty",
+        "difficulty_easy", "difficulty_normal", "difficulty_hard"
+    };
+
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_HasNonEmptyDifficultyKeys_WithoutPlaceholders(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+
+        foreach (string key in DifficultyKeys)
+        {
+            Assert.IsTrue(dictionary.TryGetProperty(key, out JsonElement value),
+                $"{language} is missing dictionary key '{key}'.");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(value.GetString()), $"{language} '{key}' is empty.");
+            Assert.AreEqual("", Placeholders(value.GetString()!), $"{language} '{key}' has placeholders.");
+        }
     }
 
     // The 19 Troll Encounter keys (spec Message Catalogue).

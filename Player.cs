@@ -13,6 +13,8 @@ public class Player
 
     public Weapon? Weapon { get; set; }
 
+    public Difficulty Difficulty { get; set; } = Difficulty.Normal;
+
     public void CreateCharacter(Messages messages)
     {
         Race = PromptForRace(messages);
@@ -154,6 +156,7 @@ public class Player
         Console.WriteLine(messages.GetMessage("stats_agility") + Agility);
         Console.WriteLine(messages.GetMessage("stats_health") + HealthPoints);
         Console.WriteLine(messages.GetMessage("stats_gold") + Gold);
+        Console.WriteLine(messages.GetMessage("stats_difficulty") + messages.GetMessage(DifficultyNameKey(Difficulty)));
 
         if (Weapon != null)
         {
@@ -161,6 +164,16 @@ public class Player
             Console.WriteLine(messages.GetMessage("stats_damage") + Weapon.MaxDamage);
         }
     }
+
+    // Translation key for a Difficulty's name. No fallback: GetMessage would otherwise print "[key]"
+    // for an unknown Difficulty, so an unsupported value fails explicitly instead of showing as Normal.
+    private static string DifficultyNameKey(Difficulty difficulty) => difficulty switch
+    {
+        Difficulty.Easy => "difficulty_easy",
+        Difficulty.Normal => "difficulty_normal",
+        Difficulty.Hard => "difficulty_hard",
+        _ => throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, "No name message for this Difficulty."),
+    };
 
     public int RollAttack()
     {

@@ -110,7 +110,13 @@
       "troll_defeated_narrative": "With a final groan, the troll crashes to the ground. The pass is yours.",
       "troll_victory": "You search {0}'s cave and find {1} Gold in his stash. You now have {2} Gold. You head back down to the crossroads.",
       "troll_defeat": "{0} roars in triumph as everything goes dark. You are defeated. Your family mourns their loss. The End.",
-      "troll_pass_clear": "The mountain pass is quiet. {0} lies defeated, and nothing blocks the way."
+      "troll_pass_clear": "The mountain pass is quiet. {0} lies defeated, and nothing blocks the way.",
+      "difficulty_prompt": "Choose a difficulty: 1. Easy  2. Normal  3. Hard. Type '1', '2' or '3'",
+      "difficulty_auto_normal": "No choice was entered. Normal difficulty was selected automatically.",
+      "stats_difficulty": "Difficulty: ",
+      "difficulty_easy": "Easy",
+      "difficulty_normal": "Normal",
+      "difficulty_hard": "Hard"
     },
     "raceMap": {
       "human": "Human",
@@ -256,7 +262,13 @@
       "troll_defeated_narrative": "Con un ultimo gemido, el trol se desploma en el suelo. El paso es tuyo.",
       "troll_victory": "Registras la cueva de {0} y encuentras {1} monedas de oro en su escondite. Ahora tienes {2} monedas de oro. Regresas al cruce.",
       "troll_defeat": "{0} ruge triunfante mientras todo se oscurece. Has sido derrotado. Tu familia llora tu perdida. Fin.",
-      "troll_pass_clear": "El paso de montana esta en calma. {0} yace derrotado y nada bloquea el camino."
+      "troll_pass_clear": "El paso de montana esta en calma. {0} yace derrotado y nada bloquea el camino.",
+      "difficulty_prompt": "Elige una dificultad: 1. Facil  2. Normal  3. Dificil. Escribe '1', '2' o '3'",
+      "difficulty_auto_normal": "No se ingreso ninguna opcion. Se selecciono automaticamente la dificultad Normal.",
+      "stats_difficulty": "Dificultad: ",
+      "difficulty_easy": "Facil",
+      "difficulty_normal": "Normal",
+      "difficulty_hard": "Dificil"
     },
     "raceMap": {
       "humano": "Human",
@@ -402,7 +414,13 @@
       "troll_defeated_narrative": "Avec un dernier grognement, le troll s'effondre. Le col est a vous.",
       "troll_victory": "Vous fouillez la grotte de {0} et trouvez {1} Or dans son tresor. Vous avez maintenant {2} Or. Vous redescendez vers le carrefour.",
       "troll_defeat": "{0} rugit de triomphe tandis que tout devient noir. Vous etes vaincu. Votre famille pleure votre perte. Fin.",
-      "troll_pass_clear": "Le col est silencieux. {0} est vaincu, et plus rien ne bloque le passage."
+      "troll_pass_clear": "Le col est silencieux. {0} est vaincu, et plus rien ne bloque le passage.",
+      "difficulty_prompt": "Choisissez une difficulte: 1. Facile  2. Normal  3. Difficile. Tapez '1', '2' ou '3'",
+      "difficulty_auto_normal": "Aucun choix n'a ete saisi. La difficulte Normal a ete selectionnee automatiquement.",
+      "stats_difficulty": "Difficulte: ",
+      "difficulty_easy": "Facile",
+      "difficulty_normal": "Normal",
+      "difficulty_hard": "Difficile"
     },
     "raceMap": {
       "humain": "Human",
@@ -548,7 +566,13 @@
       "troll_defeated_narrative": "Con un ultimo gemito, il troll crolla a terra. Il passo è tuo.",
       "troll_victory": "Frughi nella grotta di {0} e trovi {1} Oro nel suo bottino. Ora hai {2} Oro. Torni giù al bivio.",
       "troll_defeat": "{0} ruggisce trionfante mentre tutto si fa buio. Sei stato sconfitto. La tua famiglia piange la tua perdita. Fine.",
-      "troll_pass_clear": "Il passo di montagna è silenzioso. {0} giace sconfitto e nulla sbarra la strada."
+      "troll_pass_clear": "Il passo di montagna è silenzioso. {0} giace sconfitto e nulla sbarra la strada.",
+      "difficulty_prompt": "Scegli una difficoltà: 1. Facile  2. Normale  3. Difficile. Digita '1', '2' o '3'",
+      "difficulty_auto_normal": "Nessuna scelta inserita. È stata selezionata automaticamente la difficoltà Normale.",
+      "stats_difficulty": "Difficoltà: ",
+      "difficulty_easy": "Facile",
+      "difficulty_normal": "Normale",
+      "difficulty_hard": "Difficile"
     },
     "raceMap": {
       "umano": "Human",

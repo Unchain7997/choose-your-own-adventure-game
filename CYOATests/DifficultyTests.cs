@@ -131,8 +131,7 @@ public class DifficultyTests
         Assert.AreEqual(8, troll.Weapon.MaxDamage);
     }
 
-    // AC6 (adjusted numbers): the combat stats display shows the Monster's adjusted stats.
-    // Ticket 02 adds the "no stats_difficulty label" assertion here, once that key exists.
+    // AC6: the combat stats display shows the Monster's adjusted stats, with no Difficulty label.
     [TestMethod]
     public void CombatStatsDisplay_AfterHard_ShowsAdjustedMonsterStats()
     {
@@ -169,5 +168,152 @@ public class DifficultyTests
                 messages.GetMessage("stats_health") + 12
             },
             lines.Skip(header + 1).Take(4).ToArray());
+
+        Assert.IsFalse(display.Contains(messages.GetMessage("stats_difficulty")),
+            "The combat stats display must not show a Difficulty label.");
+    }
+}
+
+// Difficulty spec, Seam 3: the difficulty prompt, with typed-in console input and captured output.
+[TestClass]
+[DoNotParallelize] // These tests redirect the global Console.In/Out.
+public class DifficultyPromptTests
+{
+    private TextReader? _originalIn;
+    private TextWriter? _originalOut;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _originalIn = Console.In;
+        _originalOut = Console.Out;
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        if (_originalIn != null)
+            Console.SetIn(_originalIn);
+
+        if (_originalOut != null)
+            Console.SetOut(_originalOut);
+    }
+
+    private static Messages CreateMessages(string language)
+    {
+        Messages messages = new Messages();
+        messages.SetCurrentLanguage(language);
+        messages.ReadDictionary();
+        return messages;
+    }
+
+    private static (Difficulty chosen, string output) RunPrompt(string input, Messages messages)
+    {
+        Console.SetIn(new StringReader(input));
+        StringWriter output = new StringWriter();
+        Console.SetOut(output);
+
+        Difficulty chosen = new Game().PromptForDifficulty(messages);
+
+        return (chosen, output.ToString());
+    }
+
+    private static int CountOf(string text, string part)
+    {
+        int count = 0;
+        for (int i = text.IndexOf(part); i >= 0; i = text.IndexOf(part, i + part.Length))
+            count++;
+        return count;
+    }
+
+    // R2: the prompt line, then "Enter choice" on the same line as the player's answer.
+    [TestMethod]
+    public void Prompt_ShowsDifficultyPromptThenEnterChoice()
+    {
+        Messages messages = CreateMessages("English");
+
+        (Difficulty chosen, string output) = RunPrompt("1\n", messages);
+
+        Assert.AreEqual(Difficulty.Easy, chosen);
+        Assert.AreEqual(
+            messages.GetMessage("difficulty_prompt") + Environment.NewLine + messages.GetMessage("enter_choice"),
+            output);
+    }
+
+    // AC2: invalid input prints "invalid" and asks again.
+    [TestMethod]
+    public void Prompt_InvalidThenThree_ReturnsHard_AfterOneInvalidMessage()
+    {
+        Messages messages = CreateMessages("English");
+
+        (Difficulty chosen, string output) = RunPrompt("hard\n3\n", messages);
+
+        Assert.AreEqual(Difficulty.Hard, chosen);
+        Assert.AreEqual(1, CountOf(output, messages.GetMessage("invalid")));
+        Assert.AreEqual(2, CountOf(output, messages.GetMessage("difficulty_prompt")));
+        Assert.IsFalse(output.Contains(messages.GetMessage("difficulty_auto_normal")));
+    }
+
+    [TestMethod]
+    public void Prompt_AcceptsPaddedChoice()
+    {
+        Messages messages = CreateMessages("English");
+
+        (Difficulty chosen, string output) = RunPrompt("  1  \n", messages);
+
+        Assert.AreEqual(Difficulty.Easy, chosen);
+        Assert.IsFalse(output.Contains(messages.GetMessage("invalid")));
+    }
+
+    // AC3: end of input selects Normal with a notice, and never loops.
+    [TestMethod]
+    public void Prompt_EndOfInput_ReturnsNormal_WithAutoNormalNotice()
+    {
+        Messages messages = CreateMessages("English");
+
+        (Difficulty chosen, string output) = RunPrompt("", messages);
+
+        Assert.AreEqual(Difficulty.Normal, chosen);
+        Assert.AreEqual(1, CountOf(output, messages.GetMessage("difficulty_auto_normal")));
+        Assert.AreEqual(1, CountOf(output, messages.GetMessage("difficulty_prompt")));
+        Assert.IsFalse(output.Contains(messages.GetMessage("invalid")));
+
+        // The notice starts on its own line, after the unanswered "Enter choice" prompt.
+        Assert.AreEqual(
+            messages.GetMessage("difficulty_prompt") + Environment.NewLine +
+            messages.GetMessage("enter_choice") + Environment.NewLine +
+            messages.GetMessage("difficulty_auto_normal") + Environment.NewLine,
+            output);
+    }
+
+    [TestMethod]
+    public void Prompt_InvalidThenEndOfInput_ReturnsNormal_WithAutoNormalNotice()
+    {
+        Messages messages = CreateMessages("English");
+
+        (Difficulty chosen, string output) = RunPrompt("9\n", messages);
+
+        Assert.AreEqual(Difficulty.Normal, chosen);
+        Assert.AreEqual(1, CountOf(output, messages.GetMessage("invalid")));
+        Assert.AreEqual(1, CountOf(output, messages.GetMessage("difficulty_auto_normal")));
+    }
+
+    // AC1 (language): the prompt and its notice are shown in the chosen language.
+    [TestMethod]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Prompt_EndOfInput_ShowsTranslatedPromptAndNotice(string language)
+    {
+        Messages messages = CreateMessages(language);
+        Messages english = CreateMessages("English");
+
+        (Difficulty chosen, string output) = RunPrompt("", messages);
+
+        Assert.AreEqual(Difficulty.Normal, chosen);
+        StringAssert.Contains(output, messages.GetMessage("difficulty_prompt"));
+        StringAssert.Contains(output, messages.GetMessage("difficulty_auto_normal"));
+        Assert.IsFalse(output.Contains(english.GetMessage("difficulty_prompt")),
+            $"{language} prompt fell back to English.");
     }
 }

@@ -41,7 +41,10 @@ public class Game
 
             if (choice == "1")
             {
-                Player player = new Player();
+                // The Difficulty is chosen first and set before character creation, so the
+                // Character Summary can show it.
+                Difficulty difficulty = PromptForDifficulty(messages);
+                Player player = new Player { Difficulty = difficulty };
                 player.CreateCharacter(messages);
                 Merchant merchant = new Merchant();
                 Troll troll = new Troll(die);
@@ -136,6 +139,45 @@ public class Game
         string trimmed = input.Trim().ToLower();
         return trimmed == "a" || trimmed == "attack" ||
                trimmed == "r" || trimmed == "retreat";
+    }
+
+    // The difficulty menu's choice: 1 Easy, 2 Normal, 3 Hard (surrounding whitespace ignored).
+    // Anything else, including no input, returns null.
+    public Difficulty? ParseDifficultyChoice(string? input)
+    {
+        return input?.Trim() switch
+        {
+            "1" => Difficulty.Easy,
+            "2" => Difficulty.Normal,
+            "3" => Difficulty.Hard,
+            _ => null
+        };
+    }
+
+    // Asks for the adventure's Difficulty until a valid choice is made. When input runs out, Normal
+    // is chosen automatically and the player is told; this prompt never loops on end of input.
+    public Difficulty PromptForDifficulty(Messages messages)
+    {
+        while (true)
+        {
+            Console.WriteLine(messages.GetMessage("difficulty_prompt"));
+            Console.Write(messages.GetMessage("enter_choice"));
+            string? input = Console.ReadLine();
+
+            if (input == null)
+            {
+                // Nothing was typed after "Enter choice: ", so end that line before the notice.
+                Console.WriteLine();
+                Console.WriteLine(messages.GetMessage("difficulty_auto_normal"));
+                return Difficulty.Normal;
+            }
+
+            Difficulty? difficulty = ParseDifficultyChoice(input);
+            if (difficulty != null)
+                return difficulty.Value;
+
+            Console.WriteLine(messages.GetMessage("invalid"));
+        }
     }
 
     private string PromptForPath(Messages messages)

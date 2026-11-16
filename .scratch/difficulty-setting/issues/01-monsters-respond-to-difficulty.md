@@ -6,7 +6,7 @@ The player sees no difference yet, because nothing in the game applies a Difficu
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Spec: `.scratch/difficulty-setting/spec.md` (R7–R11, R15, R16, R27; AC4, AC5 weapon part, AC6, AC10, AC11; Seam 1)
 

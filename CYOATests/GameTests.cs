@@ -466,4 +466,33 @@ public class GameTests
         Game game = new Game();
         Assert.AreEqual("English", game.GetLanguageFromChoice(input));
     }
+
+    // --- ParseDifficultyChoice (Difficulty spec, Seam 2) ---
+
+    [TestMethod]
+    [DataRow("1", Difficulty.Easy)]
+    [DataRow("2", Difficulty.Normal)]
+    [DataRow("3", Difficulty.Hard)]
+    [DataRow(" 2 ", Difficulty.Normal)]
+    [DataRow("\t3\t", Difficulty.Hard)]
+    public void ParseDifficultyChoice_AcceptsOneTwoThree_Trimmed(string input, Difficulty expected)
+    {
+        Game game = new Game();
+        Assert.AreEqual(expected, game.ParseDifficultyChoice(input));
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("   ")]
+    [DataRow("0")]
+    [DataRow("4")]
+    [DataRow("easy")]
+    [DataRow("Easy")]
+    [DataRow("1 2")]
+    public void ParseDifficultyChoice_RejectsEverythingElse(string? input)
+    {
+        Game game = new Game();
+        Assert.IsNull(game.ParseDifficultyChoice(input));
+    }
 }
