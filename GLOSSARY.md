@@ -24,6 +24,12 @@ _Avoid_: Trader, shopkeeper, vendor, shop
 The one-time scene on the South path where the player meets the Merchant, may buy Items with Gold, and then returns to the Crossroads.
 _Avoid_: Shop, store, shopping
 
+## Adventure
+
+**Difficulty**:
+The setting, Easy, Normal or Hard, that the player chooses once for each adventure, right after choosing to create a character. It makes every Monster weaker or stronger for that whole adventure. Normal is the game as it was before Difficulty existed.
+_Avoid_: Level, mode, game mode, challenge rating
+
 ## Monsters
 
 **Monster**:

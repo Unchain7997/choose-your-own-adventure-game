@@ -26,6 +26,28 @@ public abstract class Monster
     protected abstract IReadOnlyList<string> DefenseTauntKeys { get; }
     protected abstract IReadOnlyList<string> DamageReplyKeys { get; }
 
+    // Applies the adventure's Difficulty once, right after the Monster is created: Easy -2, Hard +2 on
+    // Strength, Agility and HealthPoints, each kept at 1 or more; Hard has no maximum. Normal leaves the
+    // stats exactly as they are. Weapon, attack rules and messages are never changed.
+    public void ApplyDifficulty(Difficulty difficulty)
+    {
+        int adjustment = difficulty switch
+        {
+            Difficulty.Easy => -2,
+            Difficulty.Normal => 0,
+            Difficulty.Hard => 2,
+            // No silent fallback: a new Difficulty must be given its adjustment here explicitly.
+            _ => throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, "No adjustment for this Difficulty.")
+        };
+
+        if (adjustment == 0)
+            return;
+
+        Strength = Math.Max(1, Strength + adjustment);
+        Agility = Math.Max(1, Agility + adjustment);
+        HealthPoints = Math.Max(1, HealthPoints + adjustment);
+    }
+
     public int RollAttack()
     {
         return _die.Roll(20);
