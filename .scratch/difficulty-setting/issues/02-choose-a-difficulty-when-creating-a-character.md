@@ -11,7 +11,7 @@ The chosen Difficulty is stored on the Player, and the Character Summary shows i
 
 **Blocked by:** 01 (Monsters respond to Difficulty)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Spec: `.scratch/difficulty-setting/spec.md` (R1–R6, R13, R18, R19, R21–R24; Message Catalogue; AC1, AC2, AC3, AC6 label part, AC7, AC9, AC10, AC11; Seams 2, 3, 4, 6)
 

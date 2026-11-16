@@ -3,6 +3,19 @@ public enum TrollEncounterOutcome { Retreat, Victory, Defeat, PassClear }
 
 public class Game
 {
+    // The shared Game Die, used for the Monsters (and Grimtusk's Gold). The Player keeps its own Die.
+    private readonly Die _die;
+
+    public Game() : this(new Die())
+    {
+    }
+
+    // Lets tests pass a fixed-value Die (dependency injection, not seeding).
+    public Game(Die die)
+    {
+        _die = die;
+    }
+
     public void StartGame()
     {
         // Title screen
@@ -10,10 +23,7 @@ public class Game
         Console.WriteLine("Welcome to Choose Your Adventure Game");
         Console.WriteLine("=====================================\n");
 
-        // Instantiate Die first (per sequence diagram)
-        Die die = new Die();
-
-        Dragon dragon = new Dragon(die);
+        Die die = _die;
 
         // Language selection shown before Messages dictionary is loaded
         Console.WriteLine("Select language / Selecciona idioma / Choisissez la langue / Seleziona la lingua:");
@@ -47,7 +57,13 @@ public class Game
                 Player player = new Player { Difficulty = difficulty };
                 player.CreateCharacter(messages);
                 Merchant merchant = new Merchant();
+
+                // Both Monsters are created after the Difficulty is chosen and adjusted once, here,
+                // before the player can meet them. It stays fixed for the whole adventure.
                 Troll troll = new Troll(die);
+                troll.ApplyDifficulty(difficulty);
+                Dragon dragon = new Dragon(die);
+                dragon.ApplyDifficulty(difficulty);
 
                 bool inAdventureMenu = true;
                 while (inAdventureMenu)
