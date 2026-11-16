@@ -1,11 +1,18 @@
 # Spec: Troll Encounter
 
-Status: ready-for-agent
+Status: resolved
 
 Feature slug: `monster-encounter`
 Branch: `feature/monster-encounter` (from `main` at `3a10d6b`)
 Baseline: 262 passing tests, 0 failing (verified 2026-11-16 with `dotnet test`)
 Requirements agreed in a `/grill-with-docs` interview (Rounds 1–4, Q1–Q28). Glossary terms used here are defined in `GLOSSARY.md`: Monster, Troll Encounter, Crossroads, Dragon Encounter, Merchant Encounter, Gold.
+
+Completion (2026-11-16): implementation and acceptance testing are complete.
+- All four tickets (`issues/01`–`04`) are resolved, in commits `5082297` through `599306a`.
+- All 21 translation entries (19 new keys and 2 rewritten keys) were reviewed and approved by the user in English, Spanish, French and Italian.
+- Final verification: `dotnet test` 345 passed, 0 failed, 0 skipped; `dotnet build` 0 errors, 0 warnings.
+- ADR 0001 is unchanged: `git diff 51c1941 -- docs/0001-add-italian-language-support.md` prints nothing (AC26).
+- The requirements and decisions below are unchanged from the approved spec.
 
 ## Problem Statement
 
