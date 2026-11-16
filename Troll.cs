@@ -3,8 +3,6 @@
 // d12/d10/d12 stats, club and messages.
 public class Troll : Monster
 {
-    // Combat with Grimtusk arrives in Ticket 03, which adds these messages to the language data.
-    // Until then no code path can show them.
     private static readonly IReadOnlyList<string> _defenseTauntKeys = new[]
     {
         "troll_defense_taunt_1",
@@ -28,6 +26,18 @@ public class Troll : Monster
         Strength = _die.Roll(12);
         Agility = _die.Roll(10);
         HealthPoints = _die.Roll(12);
+    }
+
+    // Beaten for the rest of the adventure. He starts at 1-12 HealthPoints, so in normal play this
+    // becomes true only after a killing blow; a Grimtusk starting at 0 or below is a test fixture.
+    public bool IsDefeated => HealthPoints <= 0;
+
+    // The Gold in his stash: a d10 rolled when he is beaten. _die is the shared Game Die: StartGame creates
+    // one Die and hands that same object to the Dragon and to each adventure's Grimtusk.
+    // Internal: only Game calls it, so it isn't part of the public API.
+    internal int RollStashGold()
+    {
+        return _die.Roll(10);
     }
 
     protected override string StatsHeaderKey => "troll_stats_header";

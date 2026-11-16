@@ -50,18 +50,63 @@ public class LanguageDataTests
 
     [TestMethod]
     [DataRow("Italian")]
-    public void Language_HasAll97DictionaryKeys(string language)
+    public void Language_HasAll110DictionaryKeys(string language)
     {
         using JsonDocument doc = LoadLanguageData();
-        Assert.AreEqual(97, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
+        Assert.AreEqual(110, KeysOf(LoadSection(doc, language).GetProperty("dictionary")).Count);
     }
 
-    // Troll Encounter keys added by Ticket 02. troll_fight_not_ready is temporary: Ticket 03 removes it.
+    // The 19 Troll Encounter keys (spec Message Catalogue).
     private static readonly string[] TrollEncounterKeys =
     {
         "west_path_narrative", "troll_intro", "troll_stats_intro", "troll_stats_header", "troll_retreat",
-        "troll_fight_not_ready"
+        "combat_troll_header", "troll_player_attack_intro",
+        "troll_defense_taunt_1", "troll_defense_taunt_2", "troll_defense_taunt_3", "troll_defense_taunt_4",
+        "troll_damage_reply_1", "troll_damage_reply_2", "troll_damage_reply_3", "troll_damage_reply_4",
+        "troll_defeated_narrative", "troll_victory", "troll_defeat", "troll_pass_clear"
     };
+
+    // Ticket 02's temporary attack notice is gone from every language.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_HasNoTemporaryFightNotReadyKey(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        HashSet<string> keys = KeysOf(LoadSection(doc, language).GetProperty("dictionary"));
+
+        Assert.IsFalse(keys.Contains("troll_fight_not_ready"), $"{language} still has the temporary 'troll_fight_not_ready' key.");
+    }
+
+    // Each troll message takes exactly the placeholders the spec's Message Catalogue gives it.
+    [TestMethod]
+    [DataRow("English")]
+    [DataRow("Spanish")]
+    [DataRow("French")]
+    [DataRow("Italian")]
+    public void Language_TrollMessages_HaveTheirCataloguePlaceholders(string language)
+    {
+        using JsonDocument doc = LoadLanguageData();
+        JsonElement dictionary = LoadSection(doc, language).GetProperty("dictionary");
+
+        var expected = new Dictionary<string, string>
+        {
+            ["troll_player_attack_intro"] = "{0},{1}",
+            ["troll_defense_taunt_2"] = "{0}",
+            ["troll_victory"] = "{0},{1},{2}",
+            ["troll_defeat"] = "{0}",
+            ["troll_pass_clear"] = "{0}",
+        };
+
+        foreach (string key in TrollEncounterKeys.Where(k => k != "troll_intro"))
+        {
+            string want = expected.TryGetValue(key, out string? placeholders) ? placeholders : "";
+            Assert.AreEqual(want, Placeholders(dictionary.GetProperty(key).GetString()!),
+                $"{language} '{key}' has the wrong placeholders.");
+        }
+    }
 
     [TestMethod]
     [DataRow("English")]
@@ -92,7 +137,7 @@ public class LanguageDataTests
             StringAssert.DoesNotMatch(entry.Value.GetString()!, new Regex("Grimtusk"),
                 $"{language} key '{entry.Name}' types Grimtusk's name instead of using {{0}}.");
 
-        foreach (string key in new[] { "troll_intro", "troll_fight_not_ready" })
+        foreach (string key in new[] { "troll_intro", "troll_defeat", "troll_pass_clear" })
             Assert.AreEqual("{0}", Placeholders(dictionary.GetProperty(key).GetString()!),
                 $"{language} '{key}' must take Grimtusk's name as {{0}}.");
     }

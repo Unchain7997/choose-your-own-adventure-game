@@ -50,6 +50,17 @@ public class CombatTests
         Assert.AreSame(dragon, combat.monster);
     }
 
+    // AC19, Grimtusk part: Combat works on any Monster.
+    [TestMethod]
+    public void Combat_Monster_ReturnsGrimtuskWhenGivenGrimtusk()
+    {
+        Troll troll = new Troll(new Die());
+
+        Combat combat = new Combat(new Player(), troll, CreateEnglishMessages());
+
+        Assert.AreSame(troll, combat.monster);
+    }
+
     [TestMethod]
     public void Combat_PlayerRetreated_DefaultsToFalse()
     {

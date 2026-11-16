@@ -1,5 +1,5 @@
 // How a Troll Encounter ended.
-public enum TrollEncounterOutcome { Retreat }
+public enum TrollEncounterOutcome { Retreat, Victory, Defeat, PassClear }
 
 public class Game
 {
@@ -63,8 +63,13 @@ public class Game
                     }
                     else if (selectedPath == "west")
                     {
-                        // Every Troll Encounter outcome in this ticket is a retreat, back to the Crossroads.
-                        HandleTrollEncounter(player, troll, messages);
+                        // A defeat ends the adventure, as a dragon defeat does; every other outcome
+                        // (victory, retreat, pass clear) returns to the Crossroads.
+                        if (HandleTrollEncounter(player, troll, messages) == TrollEncounterOutcome.Defeat)
+                        {
+                            running = false;
+                            inAdventureMenu = false;
+                        }
                     }
                     else if (selectedPath == "north")
                     {
@@ -266,6 +271,13 @@ public class Game
 
     public TrollEncounterOutcome HandleTrollEncounter(Player player, Troll troll, Messages messages)
     {
+        // R15: once beaten, Grimtusk stays beaten for the rest of the adventure.
+        if (troll.IsDefeated)
+        {
+            Console.WriteLine(string.Format(messages.GetMessage("troll_pass_clear"), troll.Name));
+            return TrollEncounterOutcome.PassClear;
+        }
+
         Console.WriteLine(messages.GetMessage("west_path_narrative"));
         Console.WriteLine(string.Format(messages.GetMessage("troll_intro"), troll.Name));
         Console.WriteLine(messages.GetMessage("troll_stats_intro"));
@@ -285,12 +297,29 @@ public class Game
                 return TrollEncounterOutcome.Retreat;
             }
 
-            // TEMPORARY (Ticket 02 only): combat with Grimtusk arrives in Ticket 03, which removes this
-            // notice and its troll_fight_not_ready key. Attack is a valid choice, so it isn't called invalid.
             if (input == "a" || input == "attack")
             {
-                Console.WriteLine(string.Format(messages.GetMessage("troll_fight_not_ready"), troll.Name));
-                continue;
+                Combat combat = new Combat(player, troll, messages);
+                bool playerWon = combat.StartCombat();
+
+                // Combat has already printed retreat_combat; the player backs away to the Crossroads,
+                // and both sides keep their injuries.
+                if (combat.PlayerRetreated)
+                {
+                    Console.WriteLine(messages.GetMessage("troll_retreat"));
+                    return TrollEncounterOutcome.Retreat;
+                }
+
+                if (playerWon)
+                {
+                    int stashGold = troll.RollStashGold();
+                    player.Gold += stashGold;
+                    Console.WriteLine(string.Format(messages.GetMessage("troll_victory"), troll.Name, stashGold, player.Gold));
+                    return TrollEncounterOutcome.Victory;
+                }
+
+                Console.WriteLine(string.Format(messages.GetMessage("troll_defeat"), troll.Name));
+                return TrollEncounterOutcome.Defeat;
             }
 
             Console.WriteLine(messages.GetMessage("invalid"));
